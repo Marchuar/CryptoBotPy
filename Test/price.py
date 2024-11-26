@@ -28,14 +28,8 @@ def getPriceInfo(symbol):
 
 # get 20 prices
 def get20Prices():
-    i = 0
-
-    for symbol in marketsBB:
-        if i < 20:
-            getPriceInfo(symbol)
-            i = i + 1
-        else:
-            break
+    for symbol in marketsBB[:20]:
+        getPriceInfo(symbol)
 
 
 # save data in json file
