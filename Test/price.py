@@ -28,11 +28,8 @@ def getPriceInfo(symbol):
 
 # get 20 prices
 def get20Prices():
-
-    # Slice to get the first 20 symbols
     for symbol in marketsBB[:20]:
         getPriceInfo(symbol)
-
 
 
 # save data in json file
