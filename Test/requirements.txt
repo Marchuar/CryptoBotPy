@@ -1,7 +1,5 @@
 ccxt
 telegram
-time
 python-telegram-bot
-threading
 json
 datetime
