@@ -26,12 +26,14 @@ def getPriceInfo(symbol):
     pricesList.append(newPrice)
 
 
-# get 20 prices
-def get20Prices():
+# get 10 prices
+def get10Prices():
     i = 0
     for symbol in marketsBB:
         if i < 10:
             getPriceInfo(symbol)
+
+            i = i + 1
         else:
             break
 

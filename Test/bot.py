@@ -18,22 +18,35 @@ def start(update: Update, context: CallbackContext):
         print(userId)
 
 
+def stop(update: Update, context: CallbackContext):
+    userId = update.effective_chat.id
+    if userId in userIds:
+        userIds.remove(userId)
+        print(userId)
+        update.message.reply_text("Вы отписались от рассылки")
+    else:
+        update.message.reply_text("Вы ещё не получаете рассылки")
+
+
 def orders(update: Update, context: CallbackContext):
     response = order.getOrdersInfo()
     update.message.reply_text(response)
 
 
 def sendMessage():
-    price.get20Prices()
+    while True:
+        price.get10Prices()
 
-    bot = Bot("***REMOVED_TG_TOKEN***")
+        bot = Bot("***REMOVED_TG_TOKEN***")
 
-    for id in userIds:
-        try:
-            bot.send_message(chat_id=id, text=price.pricesList)
-            print("sended")
-        except Exception as e:
-            print(f"Error: {e}")
+        for id in userIds:
+            try:
+                bot.send_message(chat_id=id, text=price.pricesList)
+                price.pricesList.clear()
+                print("sended")
+            except Exception as e:
+                print(f"Error: {e}")
+        time.sleep(10)
 
 
 def main():
@@ -42,6 +55,7 @@ def main():
 
     # add start command
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("stop", stop))
     dp.add_handler(CommandHandler("orders", orders))
 
     threading.Thread(target=sendMessage, daemon=True).start()
