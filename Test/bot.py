@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 import time
 import price
 import threading
+import order
 
 userIds = []
 
@@ -17,19 +18,22 @@ def start(update: Update, context: CallbackContext):
         print(userId)
 
 
+def orders(update: Update, context: CallbackContext):
+    response = order.getOrdersInfo()
+    update.message.reply_text(response)
+
+
 def sendMessage():
     price.get20Prices()
 
     bot = Bot("***REMOVED_TG_TOKEN***")
 
-    while True:
-        for id in userIds:
-            try:
-                bot.send_message(chat_id=id, text=price.pricesList)
-                print("sended")
-            except Exception as e:
-                print(f"Error: {e}")
-        time.sleep(5)
+    for id in userIds:
+        try:
+            bot.send_message(chat_id=id, text=price.pricesList)
+            print("sended")
+        except Exception as e:
+            print(f"Error: {e}")
 
 
 def main():
@@ -38,6 +42,7 @@ def main():
 
     # add start command
     dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("orders", orders))
 
     threading.Thread(target=sendMessage, daemon=True).start()
 
