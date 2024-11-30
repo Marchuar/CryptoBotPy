@@ -4,6 +4,7 @@ import time
 import price
 import threading
 import order
+import analyzeMarket
 
 userIds = []
 
@@ -58,11 +59,18 @@ def main():
     dp.add_handler(CommandHandler("stop", stop))
     dp.add_handler(CommandHandler("orders", orders))
 
-    threading.Thread(target=sendMessage, daemon=True).start()
+    # prices
+    # threading.Thread(target=sendMessage, daemon=True).start()
+
+    # analyze market
+    threading.Thread(
+        target=analyzeMarket.fetchData, args=(userIds,), daemon=True
+    ).start()
 
     # start bot
     updater.start_polling()
     updater.idle()
 
 
-main()
+if __name__ == "__main__":
+    main()
