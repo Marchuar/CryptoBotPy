@@ -19,7 +19,7 @@ def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
         signal = strategy.generate_signal(df)
 
         print(f"Сигнал: {signal}")
-        if signal:
+        if signal and signal != "no_signal":
             for user_id in userIds:
                 bot.send_message(chat_id=user_id, text=f"Оу май, ну тут очевидно нужно открывать {signal}")
         time.sleep(60)

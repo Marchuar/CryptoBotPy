@@ -19,8 +19,7 @@ class EMAStrategy:
 
         # Чекаем достаточно ли данных для сигнала
         if len(df) < self.long_ema:
-            print("Недостаточно данных")
-            return None  # Недостаточно данных
+            return "not_enough_data"
 
         prev_short = self.short_ema_prev  # df["EMA_short"].iloc[-2]
         prev_long = self.long_ema_prev  # df["EMA_long"].iloc[-2]
@@ -43,4 +42,4 @@ class EMAStrategy:
 
         self.short_ema_prev = curr_short
         self.long_ema_prev = curr_long
-        return None
+        return "no_signal"
