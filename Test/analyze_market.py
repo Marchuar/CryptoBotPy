@@ -16,7 +16,7 @@ def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
 
         # Расчитываем индикаторы и генерируем сигнал
-        signal = strategy.generate_signal(df)
+        signal = strategy.generate_signal(df) # Добавить обработчик недостаточного кол-ва свечей
 
         print(f"Сигнал: {signal}")
         if signal and signal != "no_signal":
