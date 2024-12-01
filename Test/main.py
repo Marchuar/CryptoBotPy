@@ -1,13 +1,16 @@
 from telegram.ext import Updater, CommandHandler
 import threading
-from Test.strategies.ema import EMAStrategy
-from Test.strategy_testing.test_data_generator import load_data_from_csv, fetch_history_data_from_exchange
+from strategies.ema import EMAStrategy
+from strategy_testing.test_data_generator import (
+    load_data_from_csv,
+    fetch_history_data_from_exchange,
+)
 from connect import init_connection
 from strategy_testing.backtesting import run_backtesting
 from bot import start, stop, orders
 from analyze_market import analyze_market
 
-init_connection('bybit')
+init_connection("bybit")
 
 
 def main():
@@ -22,7 +25,7 @@ def main():
         print("1. Загрузить данные из CSV")
         print("2. Загрузить данные с биржи")
 
-        data_source = input("Введите номер источника данных")
+        data_source = input("Введите номер источника данных: ")
 
         if data_source == "1":
             file_path = input("Введите пусть к CSV файлу: ")
@@ -40,14 +43,12 @@ def main():
         strategy = EMAStrategy()
 
         # analyze market
-        threading.Thread(
-            target=analyze_market, args=(strategy,), daemon=True
-        ).start()
+        threading.Thread(target=analyze_market, args=(strategy,), daemon=True).start()
 
         updater = Updater("***REMOVED_TG_TOKEN***")
         dp = updater.dispatcher
 
-        # add start command
+        # add commands
         dp.add_handler(CommandHandler("start", start))
         dp.add_handler(CommandHandler("stop", stop))
         dp.add_handler(CommandHandler("orders", orders))
