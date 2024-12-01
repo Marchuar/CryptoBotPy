@@ -1,15 +1,13 @@
-import ccxt
-import json
+from connect import get_connection, get_markets
 from datetime import datetime
 
 pricesList = []
 
-# definition of exchange
-exchangeBB = ccxt.bybit()
-exchangeBin = ccxt.binance()
+# Коннект к бирже
+exchangeBB = get_connection('bybit')
 
-# get all markets
-marketsBB = exchangeBB.load_markets()
+# Достаем рынки биржи
+marketsBB = get_markets('bybit')
 
 
 # get price function
