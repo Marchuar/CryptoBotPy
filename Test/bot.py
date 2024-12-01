@@ -1,11 +1,10 @@
 from telegram import Update, Bot
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import CallbackContext
 import time
 import price
-import threading
 import order
-import analyzeMarket
 
+bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
 userIds = []
 
 
@@ -37,9 +36,6 @@ def orders(update: Update, context: CallbackContext):
 def sendMessage():
     while True:
         price.get10Prices()
-
-        bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
-
         for id in userIds:
             try:
                 bot.send_message(chat_id=id, text=price.pricesList)
@@ -48,29 +44,3 @@ def sendMessage():
             except Exception as e:
                 print(f"Error: {e}")
         time.sleep(10)
-
-
-def main():
-    updater = Updater("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
-    dp = updater.dispatcher
-
-    # add start command
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(CommandHandler("stop", stop))
-    dp.add_handler(CommandHandler("orders", orders))
-
-    # prices
-    # threading.Thread(target=sendMessage, daemon=True).start()
-
-    # analyze market
-    threading.Thread(
-        target=analyzeMarket.fetchData, args=(userIds,), daemon=True
-    ).start()
-
-    # start bot
-    updater.start_polling()
-    updater.idle()
-
-
-if __name__ == "__main__":
-    main()
