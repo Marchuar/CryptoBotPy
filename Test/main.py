@@ -1,10 +1,7 @@
 from telegram.ext import Updater, CommandHandler
 import threading
 from strategies.ema import EMAStrategy
-from strategy_testing.test_data_generator import (
-    load_data_from_csv,
-    fetch_history_data_from_exchange,
-)
+from strategy_testing.test_data_generator import (load_data_from_csv, fetch_history_data_from_exchange)
 from connect import init_connection
 from strategy_testing.backtesting import run_backtesting
 from bot import start, stop, orders

@@ -3,12 +3,16 @@ import talib
 
 class EMAStrategy:
     def __init__(self, short_ema=50, long_ema=100):
+        self.candles_amount = short_ema + long_ema
         self.short_ema = short_ema
         self.long_ema = long_ema
         self.short_ema_prev = 0
         self.long_ema_prev = 0
 
     def generate_signal(self, df):
+
+        if len(df) < self.candles_amount:
+            return "not_enough_candles"
 
         df = df.copy()
 
