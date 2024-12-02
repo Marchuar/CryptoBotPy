@@ -1,4 +1,4 @@
-from connect import init_connection, get_connection
+from connect import get_connection
 from datetime import datetime, timedelta
 
 # Достаем подключение к бирже
