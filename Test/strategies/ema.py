@@ -3,6 +3,7 @@ import talib
 
 class EMAStrategy:
     def __init__(self, short_ema=50, long_ema=100):
+        self.name = "EMA/RSI"
         self.candles_amount = max(short_ema, long_ema)
         self.short_ema = short_ema
         self.long_ema = long_ema
