@@ -5,7 +5,7 @@ import time
 
 
 def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
-    exchange = get_connection('bybit')
+    exchange = get_connection("bybit")
 
     while True:
         # Получаем данные из биржи
@@ -13,13 +13,23 @@ def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
         df = pd.DataFrame(
             ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"]
         )
-        df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
+        df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
 
         # Расчитываем индикаторы и генерируем сигнал
-        signal = strategy.generate_signal(df) # Добавить обработчик недостаточного кол-ва свечей
+        signal = strategy.generate_signal(
+            df
+        )  # Добавить обработчик недостаточного кол-ва свечей
 
         print(f"Сигнал: {signal}")
         if signal and signal != "no_signal":
+            message = {
+                "exchange": exchange.id,
+                "symbol": symbol,
+                "strategy": strategy.name,
+                "timeframe": timeframe,
+                "signal": signal,
+            }
+
             for user_id in userIds:
-                bot.send_message(chat_id=user_id, text=f"Оу май, ну тут очевидно нужно открывать {signal}")
+                bot.send_message(chat_id=user_id, text=message)
         time.sleep(60)
