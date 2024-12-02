@@ -1,17 +1,19 @@
 import os
 from datetime import datetime
 
-def save_results(test_data, strategy = None):
+
+def save_results(test_data, strategy=None):
     print("Мы попали в save_results")
-    #Сохраняем результаты в файл
+    # Сохраняем результаты в файл
     if strategy is None:
         folder = "strategy_testing/exchange_candles_history_results"
+        file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_exchange-history.csv"
     else:
         folder = "strategy_testing/backtesting_results"
-    os.makedirs(folder, exist_ok=True)
+        file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{strategy}.csv"
 
     # Сохраняем результаты стратегии
-    file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{strategy}.csv"
+    os.makedirs(folder, exist_ok=True)
     file_path = os.path.join(folder, file_name)
     try:
         test_data.to_csv(file_path, index=True)
