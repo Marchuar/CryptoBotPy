@@ -3,13 +3,13 @@ from datetime import datetime
 
 
 def save_results(test_data, strategy=None):
-    print("Мы попали в save_results")
+    print("Идет сохранение файла...")
     # Сохраняем результаты в файл
     if strategy is None:
-        folder = "strategy_testing/exchange_candles_history_results"
+        folder = "backtesting_tests/exchange_candles_history_results"
         file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_exchange-history.csv"
     else:
-        folder = "strategy_testing/backtesting_results"
+        folder = "backtesting_tests/strategy_test_results"
         file_name = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}_{strategy}.csv"
 
     # Сохраняем результаты стратегии

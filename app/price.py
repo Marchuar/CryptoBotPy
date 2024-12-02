@@ -37,5 +37,5 @@ def get10Prices():
 
 
 # save data in json file
-# with open("Test/prices.json", "w") as file:
+# with open("app/prices.json", "w") as file:
     # json.dump(pricesList, file, indent=4)
