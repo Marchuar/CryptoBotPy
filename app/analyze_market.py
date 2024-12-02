@@ -4,12 +4,13 @@ import pandas as pd
 import time
 
 
-def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
-    exchange = get_connection("bybit")
-
+def analyze_market(strategy,
+                   exchange=get_connection("bybit"),
+                   symbol="BTCUSDT",
+                   timeframe="1m"):
     while True:
         # Получаем данные из биржи
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=limit)
+        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
         df = pd.DataFrame(
             ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"]
         )

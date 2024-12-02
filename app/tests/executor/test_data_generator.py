@@ -1,7 +1,5 @@
 import pandas as pd
-from strategy_testing.results_saver import save_results
-
-from connect import get_connection
+from tests.executor.results_saver import save_results
 
 
 def load_data_from_csv(file_path):
@@ -12,16 +10,18 @@ def load_data_from_csv(file_path):
 
 
 def fetch_history_data_from_exchange(
-        symbol="BTCUSDT", timeframe="30m", since = None
+        exchange_connection,
+        symbol,
+        timeframe,
+        since
 ):
     # Загрузить исторические данные из биржи
-    exchange = get_connection("bybit")
-    since = exchange.parse8601("2024-09-15T00:00:00Z")
-    limit = exchange.options.get("fetchOHLCV", {}).get("maxLimit", 200)
+    since = exchange_connection.parse8601(since)
+    limit = exchange_connection.options.get("fetchOHLCV", {}).get("maxLimit", 200)
     all_data = []
 
     while True:
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe, since, limit)
+        ohlcv = exchange_connection.fetch_ohlcv(symbol, timeframe, since, limit)
         all_data.extend(ohlcv)
 
         if len(ohlcv) <= 1:

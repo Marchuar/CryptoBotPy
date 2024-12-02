@@ -1,7 +1,7 @@
-from strategy_testing.results_saver import save_results
+from tests.executor.results_saver import save_results
 
 
-def run_backtesting(strategy, test_data, save_result=True):
+def run_testing(strategy, test_data, save_result=True):
     # Запускаем бэктестинг на реальных данных
     if len(test_data) < strategy.candles_amount:
         raise ValueError("Недостаточно данных")
