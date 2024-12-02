@@ -3,7 +3,7 @@ import talib
 
 class EMAStrategy:
     def __init__(self, short_ema=50, long_ema=100):
-        self.candles_amount = short_ema + long_ema
+        self.candles_amount = max(short_ema, long_ema)
         self.short_ema = short_ema
         self.long_ema = long_ema
         self.short_ema_prev = 0
@@ -14,26 +14,10 @@ class EMAStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        df = df.copy()
-
-        print(df)
-        # Указываем индикаторы
-        df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
-        df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
-
-        # Чекаем достаточно ли данных для сигнала
-        if len(df) < self.long_ema:
-            return "not_enough_data"
-
-        prev_short = self.short_ema_prev  # df["EMA_short"].iloc[-2]
-        prev_long = self.long_ema_prev  # df["EMA_long"].iloc[-2]
+        prev_short = self.short_ema_prev
+        prev_long = self.long_ema_prev
         curr_short = df["EMA_short"].iloc[-1]
         curr_long = df["EMA_long"].iloc[-1]
-
-        print("EMA_short_prev[-2]: " + str(prev_short))
-        print("EMA_long_prev[-2]: " + str(prev_long))
-        print("EMA_short[-1]: " + str(curr_short))
-        print("EMA_long[-1]: " + str(curr_long))
 
         if prev_short < prev_long and curr_short > curr_long:
             self.short_ema_prev = curr_short
@@ -47,3 +31,22 @@ class EMAStrategy:
         self.short_ema_prev = curr_short
         self.long_ema_prev = curr_long
         return "no_signal"
+
+        # Логика без копирований
+        # prev_short = df["EMA_short"].iloc[-2]
+        # prev_long = df["EMA_long"].iloc[-2]
+        # curr_short = df["EMA_short"].iloc[-1]
+        # curr_long = df["EMA_long"].iloc[-1]
+        #
+        # if prev_short < prev_long and curr_short > curr_long:
+        #     return "long"
+        # elif prev_short > prev_long and curr_short < curr_long:
+        #     return "short"
+        # return "no_signal"
+
+    def calculate_indicators(self, df):
+        # Указываем индикаторы
+        df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
+        df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
+        print(df)
+        return df

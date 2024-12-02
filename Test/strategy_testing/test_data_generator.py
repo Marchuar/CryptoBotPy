@@ -12,11 +12,11 @@ def load_data_from_csv(file_path):
 
 
 def fetch_history_data_from_exchange(
-        symbol="BTCUSDT", timeframe="1h", since=None
+        symbol="BTCUSDT", timeframe="30m", since = None
 ):
     # Загрузить исторические данные из биржи
     exchange = get_connection("bybit")
-    since = exchange.parse8601("2024-11-01T00:00:00Z")
+    since = exchange.parse8601("2024-09-15T00:00:00Z")
     limit = exchange.options.get("fetchOHLCV", {}).get("maxLimit", 200)
     all_data = []
 
