@@ -32,4 +32,4 @@ def analyze_market(strategy, symbol="BTCUSDT", timeframe="1m", limit=150):
 
             for user_id in userIds:
                 bot.send_message(chat_id=user_id, text=message)
-        time.sleep(60)
+        time.sleep(15)

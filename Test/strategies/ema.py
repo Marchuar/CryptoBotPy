@@ -15,6 +15,11 @@ class EMAStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        # Для анализа лайф/без этого только бэктестинг работает
+        df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
+        df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
+        print(df)
+
         prev_short = self.short_ema_prev
         prev_long = self.long_ema_prev
         curr_short = df["EMA_short"].iloc[-1]
