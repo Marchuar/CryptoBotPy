@@ -1,8 +1,8 @@
-import ccxt
+from connect import init_connection, get_connection
 from datetime import datetime, timedelta
 
-
-exchange = ccxt.bybit()
+# Достаем подключение к бирже
+exchange = get_connection('bybit')
 
 symbol = "BTC/USDT"
 
