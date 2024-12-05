@@ -1,4 +1,4 @@
-from bot import bot, userIds
+from bot import bot, user_ids
 from connect import get_connection
 import pandas as pd
 import time
@@ -32,6 +32,6 @@ def analyze_market(
                 "signal": signal,
             }
 
-            for user_id in userIds:
+            for user_id in user_ids:
                 bot.send_message(chat_id=user_id, text=message)
         time.sleep(15)

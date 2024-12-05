@@ -5,24 +5,24 @@ import price
 import order
 
 bot = Bot("***REMOVED_TG_TOKEN***")
-userIds = []
+user_ids = []
 
 
 def start(update: Update, context: CallbackContext):
-    userId = update.effective_chat.id
-    if userId in userIds:
+    user_id = update.effective_chat.id
+    if user_id in user_ids:
         update.message.reply_text("Вы уже подписаны на рассылку")
     else:
-        userIds.append(userId)
+        user_ids.append(user_id)
         update.message.reply_text("Вы подписались на рассылку")
-        print(userId)
+        print(user_id)
 
 
 def stop(update: Update, context: CallbackContext):
-    userId = update.effective_chat.id
-    if userId in userIds:
-        userIds.remove(userId)
-        print(userId)
+    user_id = update.effective_chat.id
+    if user_id in user_ids:
+        user_ids.remove(user_id)
+        print(user_id)
         update.message.reply_text("Вы отписались от рассылки")
     else:
         update.message.reply_text("Вы ещё не получаете рассылки")
@@ -36,7 +36,7 @@ def orders(update: Update, context: CallbackContext):
 def sendMessage():
     while True:
         price.get10Prices()
-        for id in userIds:
+        for id in user_ids:
             try:
                 bot.send_message(chat_id=id, text=price.pricesList)
                 price.pricesList.clear()
