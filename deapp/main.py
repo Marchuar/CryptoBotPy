@@ -2,7 +2,7 @@ from telegram.ext import Updater, CommandHandler
 import threading
 from strategies.ema import EMAStrategy
 from connect import init_connection
-from bot import start, stop, orders
+from bot import start, stop
 from analyze_market import analyze_market
 
 init_connection("bybit")
@@ -23,7 +23,6 @@ def main():
     # add commands
     dp.add_handler(CommandHandler("start", start))
     dp.add_handler(CommandHandler("stop", stop))
-    dp.add_handler(CommandHandler("orders", orders))
 
     # start bot
     updater.start_polling()
