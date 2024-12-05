@@ -1,6 +1,6 @@
 from strategies.ema import EMAStrategy
-from tests.executor.backtesting import run_testing
-from tests.executor.test_data_generator import fetch_history_data_from_exchange
+from back_tests.executor.backtesting import run_testing
+from back_tests.executor.test_data_generator import fetch_history_data_from_exchange
 from connect import get_connection
 
 

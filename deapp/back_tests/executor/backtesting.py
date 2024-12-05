@@ -1,4 +1,4 @@
-from tests.executor.results_saver import save_results
+from back_tests.executor.results_saver import save_results
 
 
 def run_testing(strategy, test_data, save_result=True):

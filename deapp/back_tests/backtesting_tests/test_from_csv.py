@@ -1,6 +1,6 @@
 from strategies.ema import EMAStrategy
-from tests.executor.test_data_generator import load_data_from_csv
-from tests.executor.backtesting import run_testing
+from back_tests.executor.test_data_generator import load_data_from_csv
+from back_tests.executor.backtesting import run_testing
 
 
 def test_from_csv(

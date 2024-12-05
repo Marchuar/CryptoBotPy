@@ -1,5 +1,5 @@
 import pandas as pd
-from tests.executor.results_saver import save_results
+from back_tests.executor.results_saver import save_results
 
 
 def load_data_from_csv(file_path):
