@@ -4,24 +4,25 @@ import pandas as pd
 import time
 
 
-def analyze_market(strategy,
-                   exchange=get_connection("bybit"),
-                   symbol="BTCUSDT",
-                   timeframe="1m"):
+def analyze_market(
+    strategy, exchange=get_connection("bybit"), symbol="BTCUSDT", timeframe="1m"
+):
     while True:
         # Получаем данные из биржи
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
+        ohlcv = exchange.fetch_ohlcv(
+            symbol, timeframe=timeframe, limit=strategy.candles_amount
+        )
         df = pd.DataFrame(
             ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"]
         )
         df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
 
         # Расчитываем индикаторы и генерируем сигнал
-        signal = strategy.generate_signal(strategy.calculate_indicators(
-            df
-        ))  # Добавить обработчик недостаточного кол-ва свечей
+        signal = strategy.generate_signal(
+            strategy.calculate_indicators(df)
+        )  # Добавить обработчик недостаточного кол-ва свечей
 
-        print(f"Сигнал: {signal}")
+        print(f"Signal: {signal}")
         if signal and signal != "no_signal":
             message = {
                 "exchange": exchange.id,

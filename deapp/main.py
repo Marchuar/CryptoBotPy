@@ -9,7 +9,7 @@ init_connection("bybit")
 
 
 def main():
-    print("Запуск анализа реального рынка...")
+    print("Starting live analyze...")
 
     # Определение стратегии
     strategy = EMAStrategy()
