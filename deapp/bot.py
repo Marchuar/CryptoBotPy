@@ -5,21 +5,21 @@ bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
 user_ids = []
 
 
-def start(update: Update, context: CallbackContext):
+async def start(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
     if user_id in user_ids:
-        update.message.reply_text("Вы уже подписаны на рассылку")
+        await update.message.reply_text("Вы уже подписаны на рассылку")
     else:
         user_ids.append(user_id)
-        update.message.reply_text("Вы подписались на рассылку")
+        await update.message.reply_text("Вы подписались на рассылку")
         print(user_id)
 
 
-def stop(update: Update, context: CallbackContext):
+async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
     if user_id in user_ids:
         user_ids.remove(user_id)
         print(user_id)
-        update.message.reply_text("Вы отписались от рассылки")
+        await update.message.reply_text("Вы отписались от рассылки")
     else:
-        update.message.reply_text("Вы ещё не получаете рассылки")
+        await update.message.reply_text("Вы ещё не получаете рассылки")
