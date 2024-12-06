@@ -10,7 +10,7 @@ class EMAStrategy:
         self.short_ema_prev = 0
         self.long_ema_prev = 0
 
-    def generate_signal(self, df, rsi_overbought=70, rsi_oversold=30):
+    def generate_signal(self, df, rsi_overbought=50, rsi_oversold=50):
 
         if len(df) < self.candles_amount:
             return "not_enough_candles"
@@ -44,17 +44,6 @@ class EMAStrategy:
         self.long_ema_prev = curr_long
         return "no_signal"
 
-        # Логика без копирований
-        # prev_short = df["EMA_short"].iloc[-2]
-        # prev_long = df["EMA_long"].iloc[-2]
-        # curr_short = df["EMA_short"].iloc[-1]
-        # curr_long = df["EMA_long"].iloc[-1]
-        #
-        # if prev_short < prev_long and curr_short > curr_long:
-        #     return "long"
-        # elif prev_short > prev_long and curr_short < curr_long:
-        #     return "short"
-        # return "no_signal"
 
     def calculate_indicators(self, df, rsi_period=14):
         # Указываем индикаторы
