@@ -19,7 +19,7 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
         strategy.calculate_indicators(df)
     )  # Добавить обработчик недостаточного кол-ва свечей
 
-    print(f"Signal: {signal}")
+    print(f"EMA/RSI Signal: {signal}")
     if signal and signal != "no_signal":
         message = {
             "exchange": exchange.id,
