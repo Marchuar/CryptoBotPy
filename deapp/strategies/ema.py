@@ -1,4 +1,5 @@
 import talib
+from strategies.rsi import RSIStrategy
 
 
 class EMAStrategy:
@@ -10,7 +11,7 @@ class EMAStrategy:
         self.short_ema_prev = 0
         self.long_ema_prev = 0
 
-    def generate_signal(self, df, rsi_overbought=50, rsi_oversold=50):
+    def generate_signal(self, df):
 
         if len(df) < self.candles_amount:
             return "not_enough_candles"
@@ -20,13 +21,16 @@ class EMAStrategy:
         curr_short = df["EMA_short"].iloc[-1]
         curr_long = df["EMA_long"].iloc[-1]
 
-        curr_rsi = df["RSI"].iloc[-1]
-        print(curr_rsi)
+        # Получаем RSI сигнал
+        rsi_strategy = RSIStrategy()
+        rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
+
+        print("RSI signal: " + str(rsi_signal))
 
         if (
             prev_short < prev_long
             and curr_short > curr_long
-            and curr_rsi < rsi_oversold
+            and rsi_signal == "long"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long
@@ -34,7 +38,7 @@ class EMAStrategy:
         elif (
             prev_short > prev_long
             and curr_short < curr_long
-            and curr_rsi > rsi_overbought
+            and rsi_signal == "short"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long
@@ -45,10 +49,9 @@ class EMAStrategy:
         return "no_signal"
 
 
-    def calculate_indicators(self, df, rsi_period=14):
+    def calculate_indicators(self, df):
         # Указываем индикаторы
         df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
         df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
-        df["RSI"] = talib.RSI(df["close"], timeperiod=rsi_period)
         print(df)
         return df
