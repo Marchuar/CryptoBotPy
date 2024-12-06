@@ -1,5 +1,5 @@
 ccxt
 telegram
-python-telegram-bot==13.5
+python-telegram-bot
 datetime
 pytest
