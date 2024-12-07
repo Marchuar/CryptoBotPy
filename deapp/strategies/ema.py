@@ -1,10 +1,11 @@
 import talib
-from strategies.rsi import RSIStrategy
+from strategies.support_strategies.rsi import RSIStrategy
+from strategies.support_strategies.atr import ATRStrategy
 
 
 class EMAStrategy:
     def __init__(self, short_ema=50, long_ema=100):
-        self.name = "EMA/RSI"
+        self.name = "EMA/RSI/ATR"
         self.candles_amount = max(short_ema, long_ema)
         self.short_ema = short_ema
         self.long_ema = long_ema
@@ -27,10 +28,17 @@ class EMAStrategy:
 
         print("RSI signal: " + str(rsi_signal))
 
+        # Получаем ATR сигнал
+        atr_strategy = ATRStrategy()
+        atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
+
+        print("ATR signal: " + str(atr_signal))
+
         if (
             prev_short < prev_long
             and curr_short > curr_long
             and rsi_signal == "long"
+            and atr_signal == "true"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long
@@ -39,6 +47,7 @@ class EMAStrategy:
             prev_short > prev_long
             and curr_short < curr_long
             and rsi_signal == "short"
+            and atr_signal == "true"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long
