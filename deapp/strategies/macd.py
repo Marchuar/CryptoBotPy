@@ -1,9 +1,11 @@
 import talib
+from strategies.support_strategies.rsi import RSIStrategy
+from strategies.support_strategies.atr import ATRStrategy
 
 
 class MACDStrategy:
     def __init__(self, fastperiod=12, slowperiod=26, signalperiod=9):
-        self.name = "MACD"
+        self.name = "MACD/RSI/ATR"
         self.fastperiod = fastperiod
         self.slowperiod = slowperiod
         self.signalperiod = signalperiod
@@ -22,16 +24,28 @@ class MACDStrategy:
         macd_prev = self.mcad_prev
         specsignal_prev = self.specsignal_prev
 
+        # Получаем RSI сигнал
+        rsi_strategy = RSIStrategy()
+        rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
+
+        print("RSI signal: " + str(rsi_signal))
+
+        # Получаем ATR сигнал
+        atr_strategy = ATRStrategy()
+        atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
+
+        print("ATR signal: " + str(atr_signal))
+
         if macd_prev <= specsignal_prev and macd_last > signal_last:
             self.mcad_prev = macd_last
             self.specsignal_prev = signal_last
-            if hist_last > 0:
+            if hist_last > 0 and rsi_signal == "long" and atr_signal == "true":
                 return "long"
 
         if macd_prev >= specsignal_prev and macd_last < signal_last:
             self.mcad_prev = macd_last
             self.specsignal_prev = signal_last
-            if hist_last < 0:
+            if hist_last < 0 and rsi_signal == "short" and atr_signal == "true":
                 return "short"
 
         self.mcad_prev = macd_last

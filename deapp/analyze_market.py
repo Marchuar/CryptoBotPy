@@ -1,6 +1,6 @@
 from telegram.ext import ContextTypes
 
-from bot import bot, user_ids
+from bot import bot, user_ids_ema, user_ids_bb, user_ids_macd
 from connect import get_connection
 import pandas as pd
 
@@ -19,7 +19,7 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
         strategy.calculate_indicators(df)
     )  # Добавить обработчик недостаточного кол-ва свечей
 
-    print(f"EMA Signal: {signal}")
+    print(strategy.name + f" Signal: {signal}")
     if signal and signal != "no_signal":
         message = {
             "exchange": exchange.id,
@@ -29,5 +29,12 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
             "signal": signal,
         }
 
-        for user_id in user_ids:
-            await bot.send_message(chat_id=user_id, text=message)
+        if strategy.name == "EMA/RSI/ATR":
+            for user_id in user_ids_ema:
+                await bot.send_message(chat_id=user_id, text=message)
+        elif strategy.name == "BB/RSI/ATR":
+            for user_id in user_ids_bb:
+                await bot.send_message(chat_id=user_id, text=message)
+        elif strategy.name == "MACD/RSI/ATR":
+            for user_id in user_ids_macd:
+                await bot.send_message(chat_id=user_id, text=message)
