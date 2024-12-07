@@ -7,7 +7,8 @@ class ATRStrategy:
         self.candles_amount = atr_period * 2
         self.atr_period = atr_period
 
-    def calculate_points(self, curr_atr, price_now):
+    @staticmethod
+    def calculate_points(curr_atr, price_now):
         points = []
 
         long = {

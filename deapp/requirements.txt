@@ -3,3 +3,6 @@ telegram
 python-telegram-bot
 datetime
 pytest
+
+pandas
+numpy
