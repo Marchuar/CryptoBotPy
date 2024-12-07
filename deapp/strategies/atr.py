@@ -7,6 +7,24 @@ class ATRStrategy:
         self.candles_amount = atr_period * 2
         self.atr_period = atr_period
 
+    def calculate_points(self, curr_atr, price_now):
+        points = []
+
+        long = {
+            "trend": "long",
+            "stop_loss": price_now - curr_atr * 1.5,
+            "take_profit": price_now + curr_atr * 3
+        }
+        short = {
+            "trend": "short",
+            "stop_loss": price_now + curr_atr * 1.5,
+            "take_profit": price_now - curr_atr * 3
+        }
+
+        points.append(long)
+        points.append(short)
+        return points
+
     def generate_signal(self, df):
 
         if len(df) < self.candles_amount:
@@ -17,9 +35,11 @@ class ATRStrategy:
         print(df['ATR'].mean())
 
         if curr_atr < df['ATR'].mean():
-            return("Avoid trading.")
+            return "Avoid trading."
         else:
-            return("Market volatility is high. Signals are reliable.")
+            # Считаем Stop_Loss и Take_Profit на тренды long и short
+            points = self.calculate_points(curr_atr, df["close"].iloc[-1])
+            return "Market volatility is high. Signals are reliable. " + str(points)
 
         # Это можно ещё добавить
         # Стоп-лосс: на уровне 1–2 ATR выше текущей цены.
