@@ -1,8 +1,6 @@
 from telegram.ext import CommandHandler, ApplicationBuilder
-import threading
-from strategies.ema import EMAStrategy
-from strategies.atr import ATRStrategy
 from strategies.bb import BBStrategy
+from strategies.ema import EMAStrategy
 from connect import init_connection
 from bot import start, stop
 from analyze_market import analyze_market
@@ -13,7 +11,7 @@ def main():
     print("Starting live analyze...")
 
     # Определение стратегии
-    strategy = BBStrategy()
+    strategy = EMAStrategy()
 
     #Создаём Application
     app = ApplicationBuilder().token("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c").build()

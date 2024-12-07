@@ -8,18 +8,18 @@ class ATRStrategy:
         self.atr_period = atr_period
 
     @staticmethod
-    def calculate_points(curr_atr, price_now):
+    def calculate_points(curr_atr, curr_price):
         points = []
 
         long = {
             "trend": "long",
-            "stop_loss": price_now - curr_atr * 1.5,
-            "take_profit": price_now + curr_atr * 3
+            "stop_loss": curr_price - curr_atr * 1.5,
+            "take_profit": curr_price + curr_atr * 3
         }
         short = {
             "trend": "short",
-            "stop_loss": price_now + curr_atr * 1.5,
-            "take_profit": price_now - curr_atr * 3
+            "stop_loss": curr_price + curr_atr * 1.5,
+            "take_profit": curr_price - curr_atr * 3
         }
 
         points.append(long)
@@ -36,11 +36,11 @@ class ATRStrategy:
         print(df['ATR'].mean())
 
         if curr_atr < df['ATR'].mean():
-            return "Avoid trading."
+            return "false" # Avoid trading.
         else:
             # Считаем Stop_Loss и Take_Profit на тренды long и short
-            points = self.calculate_points(curr_atr, df["close"].iloc[-1])
-            return "Market volatility is high. Signals are reliable. " + str(points)
+            # points = self.calculate_points(curr_atr, df["close"].iloc[-1])
+            return "true" # Market volatility is high. Signals are reliable. + str(points)
 
         # Это можно ещё добавить
         # Стоп-лосс: на уровне 1–2 ATR выше текущей цены.
@@ -50,5 +50,4 @@ class ATRStrategy:
     def calculate_indicators(self, df):
         # Указываем индикаторы
         df['ATR'] = talib.ATR(df['high'], df['low'], df['close'], timeperiod=self.atr_period)
-        print(df)
         return df
