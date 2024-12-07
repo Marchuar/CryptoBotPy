@@ -4,12 +4,12 @@ from bot import bot, user_ids
 from connect import get_connection
 import pandas as pd
 
-async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connection("bybit"), symbol="BTCUSDT", timeframe="1m"):
+async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connection("bybit"), symbol="ETHUSDT", timeframe="1m"):
 
     # Получаем стратегию
     strategy = context.job.data
 
-    # Получаем данные из биржиs
+    # Получаем данные из биржи
     ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
     df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
     df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
@@ -19,7 +19,7 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
         strategy.calculate_indicators(df)
     )  # Добавить обработчик недостаточного кол-ва свечей
 
-    print(f"ATR Signal: {signal}")
+    print(f"BB Signal: {signal}")
     if signal and signal != "no_signal":
         message = {
             "exchange": exchange.id,
