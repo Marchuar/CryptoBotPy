@@ -32,5 +32,4 @@ class RSIStrategy:
     def calculate_indicators(self, df):
         # Указываем индикаторы
         df["RSI"] = talib.RSI(df["close"], timeperiod=self.rsi_period)
-        print(df)
         return df
