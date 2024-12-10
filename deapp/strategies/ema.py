@@ -62,5 +62,5 @@ class EMAStrategy:
         # Указываем индикаторы
         df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
         df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
-        print(df)
+
         return df
