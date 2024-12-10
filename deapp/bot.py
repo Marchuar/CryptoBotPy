@@ -8,7 +8,7 @@ user_ids_macd = []
 
 
 async def start(update: Update, context: CallbackContext):
-    await update.message.reply_text("Привет, DickiyEarning бот это инструмент для заработка !(огромного количества капусты)")
+    await update.message.reply_text("Привет, DickiyEarning это инструмент для заработка !(огромного количества капусты)")
 
 async def start_ema(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
