@@ -1,7 +1,4 @@
 import talib
-from strategies.support_strategies.rsi import RSIStrategy
-from strategies.support_strategies.atr import ATRStrategy
-
 
 class EMAStrategy:
     def __init__(self, short_ema=50, long_ema=100):
@@ -24,19 +21,10 @@ class EMAStrategy:
         curr_short = df["EMA_short"].iloc[-1]
         curr_long = df["EMA_long"].iloc[-1]
 
-        # Получаем RSI сигнал
-        rsi_strategy = RSIStrategy()
-        rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
-
-        # Получаем ATR сигнал
-        atr_strategy = ATRStrategy()
-        atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
 
         if (
             prev_short < prev_long
             and curr_short > curr_long
-            and rsi_signal == "long"
-            and atr_signal == "true"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long
@@ -44,8 +32,6 @@ class EMAStrategy:
         elif (
             prev_short > prev_long
             and curr_short < curr_long
-            and rsi_signal == "short"
-            and atr_signal == "true"
         ):
             self.short_ema_prev = curr_short
             self.long_ema_prev = curr_long

@@ -1,8 +1,5 @@
 import talib
 import numpy as np
-from strategies.support_strategies.rsi import RSIStrategy
-from strategies.support_strategies.atr import ATRStrategy
-
 
 class BBStrategy:
     def __init__(self, bb_deviation = 2, bb_period=20):
@@ -22,17 +19,9 @@ class BBStrategy:
         lower_band = df["BB_lower_band"].iloc[-1]
         upper_band = df["BB_upper_band"].iloc[-1]
 
-        # Получаем RSI сигнал
-        rsi_strategy = RSIStrategy()
-        rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
-
-        # Получаем ATR сигнал
-        atr_strategy = ATRStrategy()
-        atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
-
-        if curr_price < lower_band and rsi_signal == "long" and atr_signal == "true":
+        if curr_price < lower_band:
             return "long"
-        elif curr_price > upper_band and rsi_signal == "short" and atr_signal == "true":
+        elif curr_price > upper_band:
             return "short"
         else:
             return "no_signal"
