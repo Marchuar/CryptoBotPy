@@ -1,14 +1,18 @@
+from datetime import datetime
 from telegram.ext import ContextTypes
-
 from bot import bot, user_ids_ema, user_ids_bb, user_ids_macd
 from connect import get_connection
+from market_filter.filter_for_strategy import filter_symbols_for_strategy
+from market_filter.market_item_type import get_perpetual
 import pandas as pd
+from strategies.support_strategies.atr import ATRStrategy
+from strategies.support_strategies.rsi import RSIStrategy
 
 DEFAULT_SYMBOLS = ["ETHUSDT", "BNBUSDT"]
 
 
 async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connection("bybit"), symbols=DEFAULT_SYMBOLS,
-                         timeframe="1m", all_symbols_mode=False):
+                         timeframe="15m", all_symbols_mode=True):
     # Получаем стратегию
     strategy = context.job.data
     atr_strategy = ATRStrategy()
@@ -22,6 +26,7 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
     for symbol in symbols:
         try:
             # Получаем данные из биржи
+            start = datetime.now()
             ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
             df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
@@ -49,6 +54,8 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
 
             print("...\nResult >>>>")
             print(strategy.name + f" with RSI/ATR, signal: \"{signal}\"")
+            print(f"Analyze took: {(datetime.now() - start)}")
+
             if signal and signal != "no_signal":
                 message = {
                     "exchange": exchange.id,
