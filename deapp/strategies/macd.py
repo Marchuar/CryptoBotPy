@@ -17,6 +17,8 @@ class MACDStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         # Получаем последние значения для macd, signal и hist
         macd_last = df['macd'].iloc[-1]
         signal_last = df['specsignal'].iloc[-1]
@@ -28,13 +30,9 @@ class MACDStrategy:
         rsi_strategy = RSIStrategy()
         rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
 
-        print("RSI signal: " + str(rsi_signal))
-
         # Получаем ATR сигнал
         atr_strategy = ATRStrategy()
         atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
-
-        print("ATR signal: " + str(atr_signal))
 
         if macd_prev <= specsignal_prev and macd_last > signal_last:
             self.mcad_prev = macd_last
@@ -53,7 +51,8 @@ class MACDStrategy:
         return "no_signal"
 
     def calculate_indicators(self, df):
-
+        print("....")
+        print(f"Calculate indicators for: {self.name} strategy")
         df['macd'], df['specsignal'], df['hist'] = talib.MACD(
             df['close'],
             fastperiod=self.fastperiod,
