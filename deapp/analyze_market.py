@@ -5,8 +5,6 @@ from connect import get_connection
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
 from market_filter.market_item_type import get_perpetual
 import pandas as pd
-from strategies.support_strategies.atr import ATRStrategy
-from strategies.support_strategies.rsi import RSIStrategy
 
 DEFAULT_SYMBOLS = ["ETHUSDT", "BNBUSDT"]
 
