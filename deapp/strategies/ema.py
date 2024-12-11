@@ -1,6 +1,6 @@
 import talib
 
-from strategies.support_strategies import ATRStrategy, RSIStrategy
+from strategies.support_instruments import ATRStrategy, RSIStrategy
 
 
 class EMAStrategy:
