@@ -17,6 +17,8 @@ class EMAStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         prev_short = self.short_ema_prev
         prev_long = self.long_ema_prev
         curr_short = df["EMA_short"].iloc[-1]
@@ -26,13 +28,9 @@ class EMAStrategy:
         rsi_strategy = RSIStrategy()
         rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
 
-        print("RSI signal: " + str(rsi_signal))
-
         # Получаем ATR сигнал
         atr_strategy = ATRStrategy()
         atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
-
-        print("ATR signal: " + str(atr_signal))
 
         if (
             prev_short < prev_long
@@ -60,6 +58,8 @@ class EMAStrategy:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
+        print("....")
+        print(f"Calculate indicators for: {self.name} strategy")
         df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
         df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
 

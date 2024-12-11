@@ -16,6 +16,8 @@ class BBStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         curr_price = df["close"].iloc[-1]
         lower_band = df["BB_lower_band"].iloc[-1]
         upper_band = df["BB_upper_band"].iloc[-1]
@@ -24,13 +26,9 @@ class BBStrategy:
         rsi_strategy = RSIStrategy()
         rsi_signal = rsi_strategy.generate_signal(rsi_strategy.calculate_indicators(df))
 
-        print("RSI signal: " + str(rsi_signal))
-
         # Получаем ATR сигнал
         atr_strategy = ATRStrategy()
         atr_signal = atr_strategy.generate_signal(atr_strategy.calculate_indicators(df))
-
-        print("ATR signal: " + str(atr_signal))
 
         if curr_price < lower_band and rsi_signal == "long" and atr_signal == "true":
             return "long"
@@ -44,6 +42,8 @@ class BBStrategy:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
+        print("....")
+        print(f"Calculate indicators for {self.name} strategy")
         df["BB_upper_band"], df["BB_middle_band"], df["BB_lower_band"] = talib.BBANDS(
             np.array(df["close"]),
             timeperiod=self.bb_period,
