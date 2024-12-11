@@ -14,6 +14,8 @@ class EMAStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         prev_short = self.short_ema_prev
         prev_long = self.long_ema_prev
         curr_short = df["EMA_short"].iloc[-1]
@@ -42,6 +44,8 @@ class EMAStrategy:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
+        print("....")
+        print(f"Calculate indicators for: {self.name} strategy")
         df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
         df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
 

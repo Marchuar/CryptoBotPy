@@ -14,6 +14,8 @@ class MACDStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         # Получаем последние значения для macd, signal и hist
         macd_last = df['macd'].iloc[-1]
         signal_last = df['specsignal'].iloc[-1]
@@ -38,7 +40,8 @@ class MACDStrategy:
         return "no_signal"
 
     def calculate_indicators(self, df):
-
+        print("....")
+        print(f"Calculate indicators for: {self.name} strategy")
         df['macd'], df['specsignal'], df['hist'] = talib.MACD(
             df['close'],
             fastperiod=self.fastperiod,
