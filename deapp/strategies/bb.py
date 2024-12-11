@@ -1,7 +1,7 @@
 import talib
 import numpy as np
 
-from strategies.support_instruments import ATRStrategy, RSIStrategy
+from strategies.indicators import ATRStrategy, RSIStrategy
 
 
 class BBStrategy:
