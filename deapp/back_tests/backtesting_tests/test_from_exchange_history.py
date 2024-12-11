@@ -1,4 +1,3 @@
-from strategies.ema import EMAStrategy
 from strategies.macd import MACDStrategy
 from back_tests.executor.backtesting import run_testing
 from back_tests.executor.test_data_generator import fetch_history_data_from_exchange

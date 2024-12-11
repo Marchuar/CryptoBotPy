@@ -8,13 +8,14 @@ from strategies.macd import MACDStrategy
 
 init_connection("bybit")
 
+
 def main():
-    print("Starting live analyze...")
+    print("Setting up...")
 
     # Определение стратегии
-    strategies = [EMAStrategy, BBStrategy, MACDStrategy]
+    strategies = [EMAStrategy, MACDStrategy, BBStrategy]
 
-    #Создаём Application
+    # Создаём Application
     app = ApplicationBuilder().token("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c").build()
     job_queue = app.job_queue
 

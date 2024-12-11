@@ -13,6 +13,8 @@ class BBStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
+        print(f"Generate signal for {self.name} strategy")
+
         curr_price = df["close"].iloc[-1]
         lower_band = df["BB_lower_band"].iloc[-1]
         upper_band = df["BB_upper_band"].iloc[-1]
@@ -29,6 +31,8 @@ class BBStrategy:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
+        print("....")
+        print(f"Calculate indicators for {self.name} strategy")
         df["BB_upper_band"], df["BB_middle_band"], df["BB_lower_band"] = talib.BBANDS(
             np.array(df["close"]),
             timeperiod=self.bb_period,
