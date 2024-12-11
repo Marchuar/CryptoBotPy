@@ -12,7 +12,7 @@ DEFAULT_SYMBOLS = ["ETHUSDT", "BNBUSDT"]
 
 
 async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connection("bybit"), symbols=DEFAULT_SYMBOLS,
-                         timeframe="15m", all_symbols_mode=True):
+                         timeframe="15m", all_symbols_mode=False):
     # Получаем стратегию
     strategy = context.job.data
     atr_strategy = ATRStrategy()
