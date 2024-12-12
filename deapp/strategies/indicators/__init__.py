@@ -1,4 +1,4 @@
-from .atr import ATRStrategy
-from .rsi import RSIStrategy
+from .atr import ATR
+from .rsi import RSI
 
-__all__ = ["RSIStrategy", "ATRStrategy"]
+__all__ = ["RSI", "ATR"]

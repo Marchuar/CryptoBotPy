@@ -1,19 +1,25 @@
+import logging
+
 from telegram.ext import CommandHandler, ApplicationBuilder
-from strategies.bb import BBStrategy
-from strategies.ema import EMAStrategy
+
+from constants import DEFAULT_ANALYZE_INTERVAL
+from strategies.bb import BB
+from strategies.ema import EMA
 from connect import init_connection
 from bot import start, stop, start_ema, start_bb, start_macd
 from analyze_market import analyze_market
-from strategies.macd import MACDStrategy
+from strategies.macd import MACD
+from loger_setup import setup_logging
 
 init_connection("bybit")
+setup_logging()
 
 
 def main():
-    print("Setting up...")
+    logging.info("Setting up...")
 
     # Определение стратегии
-    strategies = [EMAStrategy, MACDStrategy, BBStrategy]
+    strategies = [EMA, MACD, BB]
 
     # Создаём Application
     app = ApplicationBuilder().token("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c").build()
@@ -24,7 +30,7 @@ def main():
         # Init strategy
         strategy = strategy()
         # Start analyze
-        job_queue.run_repeating(analyze_market, interval=20, data=strategy)
+        job_queue.run_repeating(analyze_market, interval=DEFAULT_ANALYZE_INTERVAL, data=strategy)
 
     # add commands
     app.add_handler(CommandHandler("start", start))
