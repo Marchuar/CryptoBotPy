@@ -4,13 +4,9 @@ from constants import DEFAULT_LOGS_MODE, DEFAULT_LOG_LEVEL
 
 
 def setup_logging(mode=DEFAULT_LOGS_MODE, level=DEFAULT_LOG_LEVEL):
-    """
-    Уровень логирования: DEBUG, INFO, WARNING, ERROR, CRITICAL
-    """
-    # Удаляем все существующие обработчики
+
     logging.getLogger().handlers.clear()
 
-    # Настраиваем формат логов
     formatter = logging.Formatter(
         fmt="%(asctime)s - %(name)s - %(levelname)s: %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
@@ -26,6 +22,8 @@ def setup_logging(mode=DEFAULT_LOGS_MODE, level=DEFAULT_LOG_LEVEL):
         logging.getLogger("apscheduler").setLevel(logging.CRITICAL)
         logging.getLogger("telegram").setLevel(logging.CRITICAL)
         logging.getLogger("httpx").setLevel(logging.CRITICAL)
+    elif mode == "off":
+        logging.getLogger().setLevel(logging.CRITICAL)
     else:
         logging.getLogger().setLevel(level)
 

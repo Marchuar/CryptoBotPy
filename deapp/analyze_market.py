@@ -36,7 +36,7 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE,
                 strategy.calculate_indicators(df)
             )
             logging.info("...\nResult >>>>")
-            logging.info(strategy.name + f" with RSI/ATR, signal: \"{signal}\"")
+            logging.info(strategy.name + f", signal: \"{signal}\"")
             logging.info(f"Analyze took: {(datetime.now() - start)}")
 
             if signal and signal != "no_signal":
