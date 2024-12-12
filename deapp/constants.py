@@ -7,8 +7,8 @@ DEFAULT_ANALYZE_TIMEFRAME = "15m"
 DEFAULT_ANALYZE_ALL_SYMBOLS_MODE = False
 
 # Loger
-DEFAULT_LOGS_MODE = "system"
-DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOGS_MODE = "system" # all, system, off
+DEFAULT_LOG_LEVEL = logging.INFO # DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 """
 >>> Indicators parameters
