@@ -1,5 +1,5 @@
 import logging
-from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ATRIndicator, EMAIndicator
+from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator
 
 
 class UniversalStrategy:
@@ -9,29 +9,29 @@ class UniversalStrategy:
         self.rsi = RSIIndicator()
         self.macd = MACDIndicator()
         self.sar = ParabolicSARIndicator()
-        self.atr = ATRIndicator()
+        self.adx = ADXIndicator()
         self.candles_amount = max(self.ema.candles_amount,
                                   self.rsi.candles_amount,
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
-                                  self.atr.candles_amount)
+                                  self.adx.candles_amount)
 
     def generate_signal(self, df):
         if (
                 df["EMA_short"].iloc[-1] > df["EMA_long"].iloc[-1] and  # EMA тренд вверх
-                df["ADX"].iloc[-1] > 25 and  # Сильный тренд
+                df["adx"].iloc[-1] > 25 and  # Сильный тренд
                 40 <= df["RSI"].iloc[-1] <= 60 and  # RSI нейтральная зона
-                df["MACD"].iloc[-1] > df["MACD_signal"].iloc[-1] and  # MACD пересечение вверх
-                df["Parabolic_SAR"].iloc[-1] < df["close"].iloc[-1]  # SAR ниже цены
+                df["macd"].iloc[-1] > df["specsignal"].iloc[-1] and  # MACD пересечение вверх
+                df["parabolic_sar"].iloc[-1] < df["close"].iloc[-1]  # SAR ниже цены
         ):
             return "buy"
             # Условия для продажи
         elif (
                 df["EMA_short"].iloc[-1] < df["EMA_long"].iloc[-1] and  # EMA тренд вниз
-                df["ADX"].iloc[-1] > 25 and  # Сильный тренд
+                df["adx"].iloc[-1] > 25 and  # Сильный тренд
                 40 <= df["RSI"].iloc[-1] <= 60 and  # RSI нейтральная зона
-                df["MACD"].iloc[-1] < df["MACD_signal"].iloc[-1] and  # MACD пересечение вниз
-                df["Parabolic_SAR"].iloc[-1] > df["close"].iloc[-1]  # SAR выше цены
+                df["macd"].iloc[-1] < df["specsignal"].iloc[-1] and  # MACD пересечение вниз
+                df["parabolic_sar"].iloc[-1] > df["close"].iloc[-1]  # SAR выше цены
         ):
             return "sell"
         return "no_signal"
@@ -41,5 +41,5 @@ class UniversalStrategy:
         df = self.rsi.calculate_indicators(df)
         df = self.macd.calculate_indicators(df)
         df = self.sar.calculate_indicators(df)
-        df = self.atr.calculate_indicators(df)
+        df = self.adx.calculate_indicators(df)
         return df

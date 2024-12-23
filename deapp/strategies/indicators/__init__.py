@@ -4,5 +4,12 @@ from .parabolic_sar import ParabolicSARIndicator
 from .bb import BBIndicator
 from .macd import MACDIndicator
 from .ema import EMAIndicator
+from .adx import ADXIndicator
 
-__all__ = ["ATRIndicator", "RSIIndicator", "ParabolicSARIndicator", "BBIndicator", "MACDIndicator", "EMAIndicator"]
+__all__ = ["ATRIndicator",
+           "RSIIndicator",
+           "ParabolicSARIndicator",
+           "BBIndicator",
+           "MACDIndicator",
+           "EMAIndicator",
+           "ADXIndicator"]
