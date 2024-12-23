@@ -1,6 +1,6 @@
 import talib
 
-from strategies.indicators import ATRStrategy, RSIStrategy
+from strategies.indicators import ATRIndicator, RSIIndicator
 
 
 class EMAStrategy:
@@ -11,8 +11,8 @@ class EMAStrategy:
         self.long_ema = long_ema
         self.short_ema_prev = 0
         self.long_ema_prev = 0
-        self.atr_strategy = ATRStrategy()
-        self.rsi_strategy = RSIStrategy()
+        self.atr_strategy = ATRIndicator()
+        self.rsi_strategy = RSIIndicator()
 
     def generate_signal(self, df):
 

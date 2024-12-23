@@ -1,6 +1,6 @@
 import talib
 
-class ADXStrategy:
+class ADXIndicator:
     def __init__(self, adx_period=14, adx_threshold=25):
         self.name = "ADX"
         self.candles_amount = adx_period * 2

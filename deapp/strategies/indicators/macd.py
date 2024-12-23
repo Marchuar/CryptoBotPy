@@ -1,8 +1,8 @@
 import talib
 
-class MACDStrategy:
+class MACDIndicator:
     def __init__(self, fastperiod=12, slowperiod=26, signalperiod=9):
-        self.name = "MACD_with_RSI_and_ATR"
+        self.name = "MACD"
         self.fastperiod = fastperiod
         self.slowperiod = slowperiod
         self.signalperiod = signalperiod

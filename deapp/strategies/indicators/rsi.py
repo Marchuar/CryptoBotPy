@@ -1,7 +1,7 @@
 import talib
 
 
-class RSIStrategy:
+class RSIIndicator:
     def __init__(self, rsi_overbought=70, rsi_oversold=30, rsi_period=14):
         self.name = "RSI"
         self.candles_amount = rsi_period * 2
