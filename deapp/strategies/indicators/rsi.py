@@ -2,7 +2,7 @@ import talib
 
 
 class RSIStrategy:
-    def __init__(self, rsi_overbought=60, rsi_oversold=40, rsi_period=14):
+    def __init__(self, rsi_overbought=70, rsi_oversold=30, rsi_period=14):
         self.name = "RSI"
         self.candles_amount = rsi_period * 2
         self.rsi_period = rsi_period
