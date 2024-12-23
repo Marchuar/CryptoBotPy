@@ -1,7 +1,13 @@
+import logging
 import talib
 
+from constants import DEFAULT_FAST_PERIOD, DEFAULT_SLOW_PERIOD, DEFAULT_SIGNAL_PERIOD
+
+
 class MACDIndicator:
-    def __init__(self, fastperiod=12, slowperiod=26, signalperiod=9):
+    def __init__(self, fastperiod=DEFAULT_FAST_PERIOD,
+                 slowperiod=DEFAULT_SLOW_PERIOD,
+                 signalperiod=DEFAULT_SIGNAL_PERIOD):
         self.name = "MACD"
         self.fastperiod = fastperiod
         self.slowperiod = slowperiod
@@ -14,7 +20,7 @@ class MACDIndicator:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        print(f"Generate signal for {self.name} strategy")
+        logging.info(f"Generate signal for {self.name} strategy")
 
         # Получаем последние значения для macd, signal и hist
         macd_last = df['macd'].iloc[-1]
@@ -40,8 +46,8 @@ class MACDIndicator:
         return "no_signal"
 
     def calculate_indicators(self, df):
-        print("....")
-        print(f"Calculate indicators for: {self.name} strategy")
+
+        logging.info(f"\n....\nCalculate indicators for {self.name} strategy")
         df['macd'], df['specsignal'], df['hist'] = talib.MACD(
             df['close'],
             fastperiod=self.fastperiod,

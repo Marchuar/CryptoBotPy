@@ -1,10 +1,12 @@
+import logging
 import talib
 
 from strategies.indicators import ATRIndicator, RSIIndicator
+from constants import DEFAULT_SHORT_EMA, DEFAULT_LONG_EMA
 
 
 class EMAStrategy:
-    def __init__(self, short_ema=50, long_ema=100):
+    def __init__(self, short_ema=DEFAULT_SHORT_EMA, long_ema=DEFAULT_LONG_EMA):
         self.name = "EMA_with_RSI_and_ATR"
         self.candles_amount = max(short_ema, long_ema)
         self.short_ema = short_ema
@@ -19,7 +21,7 @@ class EMAStrategy:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        print(f"Generate signal for {self.name} strategy")
+        logging.info(f"Generate signal for {self.name} strategy")
 
         prev_short = self.short_ema_prev
         prev_long = self.long_ema_prev
@@ -54,12 +56,11 @@ class EMAStrategy:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
-        print("....")
-        print(f"Calculate indicators for: {self.name} strategy")
+        logging.info(f"\n....\nCalculate indicators for {self.name} strategy")
         df["EMA_short"] = talib.EMA(df["close"], timeperiod=self.short_ema)
         df["EMA_long"] = talib.EMA(df["close"], timeperiod=self.long_ema)
 
-        print("Calculating support indicators...")
+        logging.info("Calculating support indicators...")
         # Рассчитываем ATR
         df = self.atr_strategy.calculate_indicators(df)
         # Рассчитываем RSI

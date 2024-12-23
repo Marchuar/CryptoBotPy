@@ -6,14 +6,14 @@ from bot import start, stop, start_ema, start_bb, start_macd
 from analyze_market import analyze_market
 
 init_connection("bybit")
+setup_logging()
 
 
 def main():
-    print("Setting up...")
+    logging.info("Setting up...")
 
     # Определение стратегии
     strategies = [EMAStrategy, BBIndicator]
-
     # Создаём Application
     app = ApplicationBuilder().token("***REMOVED_TG_TOKEN***").build()
     job_queue = app.job_queue
@@ -23,7 +23,7 @@ def main():
         # Init strategy
         strategy = strategy()
         # Start analyze
-        job_queue.run_repeating(analyze_market, interval=20, data=strategy)
+        job_queue.run_repeating(analyze_market, interval=DEFAULT_ANALYZE_INTERVAL, data=strategy)
 
     # add commands
     app.add_handler(CommandHandler("start", start))

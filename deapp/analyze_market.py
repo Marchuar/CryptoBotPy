@@ -1,16 +1,19 @@
+import logging
 from datetime import datetime
 from telegram.ext import ContextTypes
 from bot import bot, user_ids_ema, user_ids_bb, user_ids_macd
 from connect import get_connection
+from constants import DEFAULT_ANALYZE_TIMEFRAME, DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
 from market_filter.market_item_type import get_perpetual
 import pandas as pd
 
-DEFAULT_SYMBOLS = ["ETHUSDT", "BNBUSDT"]
 
-
-async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connection("bybit"), symbols=DEFAULT_SYMBOLS,
-                         timeframe="15m", all_symbols_mode=False):
+async def analyze_market(context: ContextTypes.DEFAULT_TYPE,
+                         exchange=get_connection("bybit"),
+                         symbols=DEFAULT_ANALYZE_SYMBOLS,
+                         timeframe=DEFAULT_ANALYZE_TIMEFRAME,
+                         all_symbols_mode=DEFAULT_ANALYZE_ALL_SYMBOLS_MODE):
     # Получаем стратегию
     strategy = context.job.data
 
@@ -28,14 +31,13 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
             df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
 
             # Расчитываем индикаторы и генерируем сигнал
-            print("----------------------------------------")
-            print(f"Start analyze for symbol: {symbol}")
+            logging.info(f"\n----------------------------------------\nStart analyze for symbol: {symbol}")
             signal = strategy.generate_signal(
                 strategy.calculate_indicators(df)
             )
-            print("...\nResult >>>>")
-            print(strategy.name + f" with RSI/ATR, signal: \"{signal}\"")
-            print(f"Analyze took: {(datetime.now() - start)}")
+            logging.info("...\nResult >>>>")
+            logging.info(strategy.name + f", signal: \"{signal}\"")
+            logging.info(f"Analyze took: {(datetime.now() - start)}")
 
             if signal and signal != "no_signal":
                 message = {
@@ -56,4 +58,4 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
                     for user_id in user_ids_macd:
                         await bot.send_message(chat_id=user_id, text=message)
         except Exception as e:
-            print(f"Ошибка обработки символа: {symbol}: {e}")
+            logging.error(f"Ошибка обработки символа: {symbol}: {e}")

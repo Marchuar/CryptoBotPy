@@ -1,9 +1,11 @@
 import talib
+import logging
 import numpy as np
 
+from constants import DEFAULT_BB_DEVIATION, DEFAULT_BB_PERIOD
 
 class BBIndicator:
-    def __init__(self, bb_deviation = 2, bb_period=20):
+    def __init__(self, bb_deviation = DEFAULT_BB_DEVIATION, bb_period=DEFAULT_BB_PERIOD):
         self.name = "BB"
         self.candles_amount = bb_period * 2
         self.bb_period = bb_period
@@ -14,7 +16,7 @@ class BBIndicator:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        print(f"Generate signal for {self.name} strategy")
+        logging.info(f"Generate signal for {self.name} strategy")
 
         curr_price = df["close"].iloc[-1]
         lower_band = df["BB_lower_band"].iloc[-1]
@@ -29,17 +31,16 @@ class BBIndicator:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
-        print("....")
-        print(f"Calculate indicators for {self.name} strategy")
+        logging.info(f"\n....\nCalculate indicators for {self.name} strategy")
         df["BB_upper_band"], df["BB_middle_band"], df["BB_lower_band"] = talib.BBANDS(
             np.array(df["close"]),
             timeperiod=self.bb_period,
             nbdevup=self.bb_deviation,
             nbdevdn=self.bb_deviation,
-            matype=1 # BB тип: EMA
+            matype=1  # BB тип: EMA
         )
 
-        print("Calculating support indicators...")
+        logging.info("Calculating support indicators...")
         # Рассчитываем ATR
         df = self.atr_strategy.calculate_indicators(df)
         # Рассчитываем RSI
