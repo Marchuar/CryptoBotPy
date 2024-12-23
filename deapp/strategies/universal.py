@@ -20,7 +20,7 @@ class UniversalStrategy:
         if (
                 df["EMA_short"].iloc[-1] > df["EMA_long"].iloc[-1] and  # EMA тренд вверх
                 df["adx"].iloc[-1] > 25 and  # Сильный тренд
-                40 <= df["RSI"].iloc[-1] <= 60 and  # RSI нейтральная зона
+                30 <= df["RSI"].iloc[-1] <= 70 and  # RSI нейтральная зона
                 df["macd"].iloc[-1] > df["specsignal"].iloc[-1] and  # MACD пересечение вверх
                 df["parabolic_sar"].iloc[-1] < df["close"].iloc[-1]  # SAR ниже цены
         ):
@@ -29,7 +29,7 @@ class UniversalStrategy:
         elif (
                 df["EMA_short"].iloc[-1] < df["EMA_long"].iloc[-1] and  # EMA тренд вниз
                 df["adx"].iloc[-1] > 25 and  # Сильный тренд
-                40 <= df["RSI"].iloc[-1] <= 60 and  # RSI нейтральная зона
+                30 <= df["RSI"].iloc[-1] <= 70 and  # RSI нейтральная зона
                 df["macd"].iloc[-1] < df["specsignal"].iloc[-1] and  # MACD пересечение вниз
                 df["parabolic_sar"].iloc[-1] > df["close"].iloc[-1]  # SAR выше цены
         ):
