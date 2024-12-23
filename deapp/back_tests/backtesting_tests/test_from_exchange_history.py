@@ -1,4 +1,4 @@
-from strategies.macd import MACDStrategy
+from strategies.adx import ADXStrategy
 from back_tests.executor.backtesting import run_testing
 from back_tests.executor.test_data_generator import fetch_history_data_from_exchange
 from connect import get_connection
@@ -6,7 +6,7 @@ from connect import get_connection
 
 def test_from_exchange(
         exchange=get_connection("bybit"),
-        strategy=MACDStrategy(),
+        strategy=ADXStrategy(),
         symbol="BTCUSDT",
         timeframe="1h",
         since="2024-11-06T00:00:00Z"

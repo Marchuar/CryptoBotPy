@@ -2,7 +2,7 @@ import talib
 
 class MACDStrategy:
     def __init__(self, fastperiod=12, slowperiod=26, signalperiod=9):
-        self.name = "MACD/RSI/ATR"
+        self.name = "MACD_with_RSI_and_ATR"
         self.fastperiod = fastperiod
         self.slowperiod = slowperiod
         self.signalperiod = signalperiod

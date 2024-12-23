@@ -46,13 +46,13 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE, exchange=get_connec
                     "signal": signal,
                 }
 
-                if strategy.name == "EMA/RSI/ATR":
+                if strategy.name == "EMA_with_RSI_and_ATR":
                     for user_id in user_ids_ema:
                         await bot.send_message(chat_id=user_id, text=message)
-                elif strategy.name == "BB/RSI/ATR":
+                elif strategy.name == "BB_with_RSI_and_ATR":
                     for user_id in user_ids_bb:
                         await bot.send_message(chat_id=user_id, text=message)
-                elif strategy.name == "MACD/RSI/ATR":
+                elif strategy.name == "MACD_with_RSI_and_ATR":
                     for user_id in user_ids_macd:
                         await bot.send_message(chat_id=user_id, text=message)
         except Exception as e:
