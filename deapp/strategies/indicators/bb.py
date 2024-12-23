@@ -5,7 +5,7 @@ import numpy as np
 from constants import DEFAULT_BB_DEVIATION, DEFAULT_BB_PERIOD
 
 class BBIndicator:
-    def __init__(self, bb_deviation = 2, bb_period=20):
+    def __init__(self, bb_deviation = DEFAULT_BB_DEVIATION, bb_period=DEFAULT_BB_PERIOD):
         self.name = "BB"
         self.candles_amount = bb_period * 2
         self.bb_period = bb_period

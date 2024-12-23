@@ -1,7 +1,10 @@
 import talib
 
+from constants import DEFAULT_SAR_ACCELERATION, DEFAULT_SAR_MAXIMUM
+
+
 class ParabolicSARIndicator:
-    def __init__(self, sar_acceleration=0.02, sar_maximum=0.2):
+    def __init__(self, sar_acceleration=DEFAULT_SAR_ACCELERATION, sar_maximum=DEFAULT_SAR_MAXIMUM):
         self.name = "ParabolicSAR"
         self.candles_amount = 30
         self.sar_acceleration = sar_acceleration
