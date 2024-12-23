@@ -5,7 +5,7 @@ import talib
 from constants import DEFAULT_ATR_PERIOD
 
 class ATRIndicator:
-    def __init__(self, atr_period=14):
+    def __init__(self, atr_period=DEFAULT_ATR_PERIOD):
         self.name = "ATR"
         self.candles_amount = atr_period * 2
         self.atr_period = atr_period

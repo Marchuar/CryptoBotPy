@@ -2,8 +2,11 @@ import logging
 import talib
 from constants import DEFAULT_RSI_OVERBOUGHT, DEFAULT_RSI_OVERSOLD, DEFAULT_RSI_PERIOD
 
+
 class RSIIndicator:
-    def __init__(self, rsi_overbought=70, rsi_oversold=30, rsi_period=14):
+    def __init__(self, rsi_overbought=DEFAULT_RSI_OVERBOUGHT,
+                 rsi_oversold=DEFAULT_RSI_OVERSOLD,
+                 rsi_period=DEFAULT_RSI_PERIOD):
         self.name = "RSI"
         self.candles_amount = rsi_period * 2
         self.rsi_period = rsi_period

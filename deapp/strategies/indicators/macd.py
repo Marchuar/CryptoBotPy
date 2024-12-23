@@ -3,8 +3,11 @@ import talib
 
 from constants import DEFAULT_FAST_PERIOD, DEFAULT_SLOW_PERIOD, DEFAULT_SIGNAL_PERIOD
 
+
 class MACDIndicator:
-    def __init__(self, fastperiod=12, slowperiod=26, signalperiod=9):
+    def __init__(self, fastperiod=DEFAULT_FAST_PERIOD,
+                 slowperiod=DEFAULT_SLOW_PERIOD,
+                 signalperiod=DEFAULT_SIGNAL_PERIOD):
         self.name = "MACD"
         self.fastperiod = fastperiod
         self.slowperiod = slowperiod
