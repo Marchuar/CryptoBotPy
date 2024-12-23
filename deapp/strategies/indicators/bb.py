@@ -40,10 +40,4 @@ class BBIndicator:
             matype=1  # BB тип: EMA
         )
 
-        logging.info("Calculating support indicators...")
-        # Рассчитываем ATR
-        df = self.atr_strategy.calculate_indicators(df)
-        # Рассчитываем RSI
-        df = self.rsi_strategy.calculate_indicators(df)
-
         return df
