@@ -36,8 +36,10 @@ class ADXStrategy:
                 return "short"  # Сигнал на продажу
             else:
                 return "no_signal"
-        elif adx < self.adx_threshold:
+        elif adx < self.adx_threshold - 5:
             return "flat" # Боковой рынок
+        else:
+            return "no_signal"
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
