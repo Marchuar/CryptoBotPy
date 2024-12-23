@@ -1,11 +1,10 @@
 import logging
 import talib
 
-from strategies.indicators import ATRIndicator, RSIIndicator
 from constants import DEFAULT_SHORT_EMA, DEFAULT_LONG_EMA
 
 
-class EMAStrategy:
+class EMAIndicator:
     def __init__(self, short_ema=DEFAULT_SHORT_EMA, long_ema=DEFAULT_LONG_EMA):
         self.name = "EMA"
         self.candles_amount = max(short_ema, long_ema)
