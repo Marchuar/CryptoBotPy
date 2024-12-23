@@ -4,9 +4,8 @@ import talib
 
 from constants import DEFAULT_ATR_PERIOD
 
-
-class ATR:
-    def __init__(self, atr_period=DEFAULT_ATR_PERIOD):
+class ATRIndicator:
+    def __init__(self, atr_period=14):
         self.name = "ATR"
         self.candles_amount = atr_period * 2
         self.atr_period = atr_period
@@ -53,6 +52,7 @@ class ATR:
         # Это можно ещё добавить
         # Стоп-лосс: на уровне 1–2 ATR выше текущей цены.
         # Тейк-профит: на уровне 2–3 ATR ниже текущей цены.
+
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
