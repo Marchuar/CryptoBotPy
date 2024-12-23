@@ -1,10 +1,9 @@
 from telegram.ext import CommandHandler, ApplicationBuilder
-from strategies.bb import BBStrategy
-from strategies.ema import EMAStrategy
+from strategies.indicators.bb import BBIndicator
+from strategies.emaOld import EMAStrategy
 from connect import init_connection
 from bot import start, stop, start_ema, start_bb, start_macd
 from analyze_market import analyze_market
-from strategies.macd import MACDStrategy
 
 init_connection("bybit")
 
@@ -13,7 +12,7 @@ def main():
     print("Setting up...")
 
     # Определение стратегии
-    strategies = [EMAStrategy, MACDStrategy, BBStrategy]
+    strategies = [EMAStrategy, BBIndicator]
 
     # Создаём Application
     app = ApplicationBuilder().token("***REMOVED_TG_TOKEN***").build()

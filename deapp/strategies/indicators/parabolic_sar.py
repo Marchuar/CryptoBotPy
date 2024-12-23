@@ -1,6 +1,6 @@
 import talib
 
-class ParabolicSARStrategy:
+class ParabolicSARIndicator:
     def __init__(self, sar_acceleration=0.02, sar_maximum=0.2):
         self.name = "ParabolicSAR"
         self.candles_amount = 30

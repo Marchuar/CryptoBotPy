@@ -1,7 +1,7 @@
 import talib
 
 
-class ATRStrategy:
+class ATRIndicator:
     def __init__(self, atr_period=14):
         self.name = "ATR"
         self.candles_amount = atr_period * 2
