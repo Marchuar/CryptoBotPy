@@ -1,9 +1,12 @@
 from telegram.ext import CommandHandler, ApplicationBuilder
-from strategies.indicators.bb import BBIndicator
-from strategies.emaOld import EMAStrategy
+
+from constants import DEFAULT_ANALYZE_INTERVAL
+from loger_setup import setup_logging
 from connect import init_connection
+import logging
 from bot import start, stop, start_ema, start_bb, start_macd
 from analyze_market import analyze_market
+from strategies.universal import UniversalStrategy
 
 init_connection("bybit")
 setup_logging()
@@ -13,7 +16,7 @@ def main():
     logging.info("Setting up...")
 
     # Определение стратегии
-    strategies = [EMAStrategy, BBIndicator]
+    strategies = [UniversalStrategy]
     # Создаём Application
     app = ApplicationBuilder().token("***REMOVED_TG_TOKEN***").build()
     job_queue = app.job_queue
