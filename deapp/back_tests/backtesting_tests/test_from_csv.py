@@ -1,12 +1,12 @@
 import logging
 
-from strategies.ema import EMA
+from strategies.emaOld import EMAStrategy
 from back_tests.executor.test_data_generator import load_data_from_csv
 from back_tests.executor.backtesting import run_testing
 
 
 def test_from_csv(
-        strategy=EMA(),
+        strategy=EMAStrategy(),
         file_path="/..."
 ):
     logging.info("Загружаем данные из CSV")

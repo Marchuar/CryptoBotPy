@@ -1,6 +1,6 @@
 import logging
 
-from strategies.macd import MACD
+from strategies.indicators.adx import ADXIndicator
 from back_tests.executor.backtesting import run_testing
 from back_tests.executor.test_data_generator import fetch_history_data_from_exchange
 from connect import get_connection
@@ -8,7 +8,7 @@ from connect import get_connection
 
 def test_from_exchange(
         exchange=get_connection("bybit"),
-        strategy=MACD(),
+        strategy=ADXIndicator(),
         symbol="BTCUSDT",
         timeframe="1h",
         since="2024-11-06T00:00:00Z"

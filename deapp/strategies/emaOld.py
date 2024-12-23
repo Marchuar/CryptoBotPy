@@ -1,20 +1,20 @@
 import logging
 import talib
 
+from strategies.indicators import ATRIndicator, RSIIndicator
 from constants import DEFAULT_SHORT_EMA, DEFAULT_LONG_EMA
-from strategies.indicators import ATR, RSI
 
 
-class EMA:
-    def __init__(self, short_ema=DEFAULT_SHORT_EMA, long_ema=DEFAULT_LONG_EMA):
+class EMAStrategy:
+    def __init__(self, short_ema=50, long_ema=100):
         self.name = "EMA_with_RSI_and_ATR"
         self.candles_amount = max(short_ema, long_ema)
         self.short_ema = short_ema
         self.long_ema = long_ema
         self.short_ema_prev = 0
         self.long_ema_prev = 0
-        self.atr_strategy = ATR()
-        self.rsi_strategy = RSI()
+        self.atr_strategy = ATRStrategy()
+        self.rsi_strategy = RSIStrategy()
 
     def generate_signal(self, df):
 
