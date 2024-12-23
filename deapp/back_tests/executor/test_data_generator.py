@@ -1,3 +1,5 @@
+import logging
+
 import pandas as pd
 from back_tests.executor.results_saver import save_results
 
@@ -25,11 +27,11 @@ def fetch_history_data_from_exchange(
         all_data.extend(ohlcv)
 
         if len(ohlcv) <= 1:
-            print("Данные закончились, все свечи выгружены")
+            logging.info("Данные закончились, все свечи выгружены")
             break
         since = ohlcv[-1][0] + 1
 
-        print(f"Загружено {len(ohlcv)} свечей, всего: {len(all_data)}")
+        logging.info(f"Загружено {len(ohlcv)} свечей, всего: {len(all_data)}")
 
     # Преобразование в DataFrame
     df = pd.DataFrame(

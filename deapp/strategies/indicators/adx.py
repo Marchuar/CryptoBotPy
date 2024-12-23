@@ -1,7 +1,10 @@
 import talib
 
+from constants import DEFAULT_ADX_PERIOD, DEFAULT_ADX_THRESHHOLD
+
+
 class ADXIndicator:
-    def __init__(self, adx_period=14, adx_threshold=25):
+    def __init__(self, adx_period=DEFAULT_ADX_PERIOD, adx_threshold=DEFAULT_ADX_THRESHHOLD):
         self.name = "ADX"
         self.candles_amount = adx_period * 2
         self.adx_period = adx_period

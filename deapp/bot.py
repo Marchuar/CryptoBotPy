@@ -1,3 +1,5 @@
+import logging
+
 from telegram import Update, Bot
 from telegram.ext import CallbackContext
 
@@ -17,7 +19,7 @@ async def start_ema(update: Update, context: CallbackContext):
     else:
         user_ids_ema.append(user_id)
         await update.message.reply_text("Вы подписались на рассылку EMA")
-        print(user_id)
+        logging.info(user_id)
 
 async def start_bb(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
@@ -26,7 +28,7 @@ async def start_bb(update: Update, context: CallbackContext):
     else:
         user_ids_bb.append(user_id)
         await update.message.reply_text("Вы подписались на рассылку BB")
-        print(user_id)
+        logging.info(user_id)
 
 async def start_macd(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
@@ -35,22 +37,22 @@ async def start_macd(update: Update, context: CallbackContext):
     else:
         user_ids_macd.append(user_id)
         await update.message.reply_text("Вы подписались на рассылку MACD")
-        print(user_id)
+        logging.info(user_id)
 
 
 async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
     if user_id in user_ids_ema:
         user_ids_ema.remove(user_id)
-        print(user_id)
+        logging.info(user_id)
         await update.message.reply_text("Вы отписались от рассылки EMA")
     elif user_id in user_ids_bb:
         user_ids_bb.remove(user_id)
-        print(user_id)
+        logging.info(user_id)
         await update.message.reply_text("Вы отписались от рассылки BB")
     elif user_id in user_ids_macd:
         user_ids_macd.remove(user_id)
-        print(user_id)
+        logging.info(user_id)
         await update.message.reply_text("Вы отписались от рассылки MACD")
     else:
         await update.message.reply_text("Вы ещё не получаете рассылки")
