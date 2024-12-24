@@ -1,21 +1,30 @@
-from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator
+from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator, \
+    ATRIndicator
 
 
 class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
-        self.universal_buy_treshold = 3.5
+        self.universal_buy_treshold = 2.9
         self.universal_sell_treshold = -2.5
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
         self.macd = MACDIndicator()
         self.sar = ParabolicSARIndicator()
         self.adx = ADXIndicator()
+        self.atr = ATRIndicator()
         self.candles_amount = max(self.ema.candles_amount,
                                   self.rsi.candles_amount,
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
                                   self.adx.candles_amount)
+        self.weights = {
+            "EMA": 0.75,
+            "ADX": 0.5,
+            "RSI": 1.25,
+            "MACD": 1.75,
+            "SAR": 0.75,
+        }
 
     def generate_signal(self, df):
         score = self.calculate_signal_score(df)
@@ -26,49 +35,101 @@ class UniversalStrategy:
             return "sell"
         return "no_signal"
 
-    def calculate_signal_score(self, df):
-        score = 0
-        weights = self.calculate_indicators_weights()
+    # EMA
+    def evaluate_ema(self, df, atr):
+        ema_short = df["EMA_short"].iloc[-1] / atr
+        ema_long = df["EMA_long"].iloc[-1] / atr
+        ema_hist = ema_short - ema_long
+        multiplier = 1.2 if abs(ema_hist) > 2.0 else 1.0
 
-        # EMA
-        ema_hist = df["EMA_short"].iloc[-1] - df["EMA_long"].iloc[-1]
-        if ema_hist > 2 or ema_hist < -2:
-            ema_hist_multiplier = 1.2
+        if ema_short > ema_long:
+            ema_score = self.weights["EMA"] * multiplier
         else:
-            ema_hist_multiplier = 1.0
-        if df["EMA_short"].iloc[-1] > df["EMA_long"].iloc[-1]:
-            score += weights["EMA"] * ema_hist_multiplier
-        else:
-            score -= weights["EMA"] * ema_hist_multiplier
+            ema_score = -self.weights["EMA"] * multiplier
+        print(f"EMA Score: {ema_score}")
+        return ema_score
 
-        # ADX
-        adx_multiplier = 1.2
-        if df["adx"].iloc[-1] > self.adx.adx_threshold:
-            score *= adx_multiplier
+    # ADX
+    def evaluate_adx(self, df):
+        adx = df["adx"].iloc[-1]
+        adx_score = 0
+        if adx > self.adx.adx_threshold:
+            adx_score = self.weights["ADX"] * 1.75
+        print(f"ADX score: {adx_score}")
+        return adx_score
 
         # RSI
-        if 30 <= df["RSI"].iloc[-1] <= 70:
-            score = score + (weights["RSI"] * 0.5)
-        else:
-            score += weights["RSI"]
 
-        # MACD
-        if df["macd"].iloc[-1] > df["specsignal"].iloc[-1]:
-            score += weights["MACD"]
-        else:
-            score -= weights["MACD"]
+    def evaluate_rsi(self, df):
+        rsi = df["RSI"].iloc[-1]
+        rsi_multiplier = 0.5 if 30 <= rsi <= 70 else 1.0
+        rsi_score = self.weights["RSI"] * rsi_multiplier
+        print(f"RSI Score: {rsi_score}")
+        return rsi_score
+
+    # MACD
+    def evaluate_macd(self, df, atr):
+        macd = df["macd"].iloc[-1]
+        specsignal = df["specsignal"].iloc[-1]
+        macd_hist = df["hist"].iloc[-1]
+        normalized_macd_hist = macd_hist / atr
+        macd_score = 0
+        macd_hist_treshold = 0.43
         macd_hist_multiplier = 1.45
-        if df["hist"].iloc[-1] > 0.48 or df["hist"].iloc[-1] < -0.48:
-            score *= macd_hist_multiplier
+        macd_cross = 0.01
+        macd_cross_multiplyer = 1.6
 
-        # Parabolic SAR
-        if df["parabolic_sar"].iloc[-1] < df["close"].iloc[-1]:
-            score += weights["SAR"]
+        # Усиление эффекта MACD, если гистограмма превышает порог
+        if abs(normalized_macd_hist) > macd_hist_treshold:
+            macd_score = self.weights["MACD"] * macd_hist_multiplier
+            print(f"Normalized MACD Hist: {normalized_macd_hist}, Multiplier Applied: {macd_hist_multiplier}")
+
+        # Обработка пересечения MACD с нулевой линией
+        if -macd_cross < normalized_macd_hist < macd_cross:
+            macd_score = self.weights["MACD"] * macd_cross_multiplyer
         else:
-            score -= weights["SAR"]
+            if macd > specsignal:
+                macd_score += self.weights["MACD"]
+            else:
+                macd_score -= self.weights["MACD"]
+
+        print(f"MACD: {macd}, Specsignal: {specsignal}, Hist: {macd_hist}, Normalized Hist: {normalized_macd_hist}")
+        print(f"MACD score: {macd_score}")
+        return macd_score
+
+    # Parabolic SAR
+    def evaluate_sar(self, df, close):
+        parabolic_sar = df["parabolic_sar"].iloc[-1]
+        sar_score = self.weights["SAR"] if parabolic_sar < close else -self.weights["SAR"]
+        print(f"SAR Score: {sar_score}")
+        return sar_score
+
+    def calculate_signal_score(self, df):
+        print("--------------Начало расчета скора--------------")
+        print(f"Timestamp: {df['timestamp'].iloc[-1]}")
+
+        score = 0
+        atr = df["ATR"].iloc[-1]
+        close = df["close"].iloc[-1]
+
+        score += self.evaluate_ema(df, atr)
+        score += self.evaluate_adx(df)
+        score += self.evaluate_rsi(df)
+        score += self.evaluate_macd(df, atr)
+        score += self.evaluate_sar(df, close)
 
         df.loc[df.index[-1], "score"] = score
+        print("***************Конец расчета скора***************")
         return score
+
+        # print("--------------Начало расчета скора--------------")
+        # print(f"Timestamp: {df["timestamp"].iloc[-1]}")
+        # score = 0
+        # close = df["close"].iloc[-1]
+        # df.loc[df.index[-1], "score"] = score
+        #
+        # # ATR
+        # atr = df["ATR"].iloc[-1]
 
     def calculate_indicators(self, df):
         df = self.ema.calculate_indicators(df)
@@ -76,15 +137,5 @@ class UniversalStrategy:
         df = self.macd.calculate_indicators(df)
         df = self.sar.calculate_indicators(df)
         df = self.adx.calculate_indicators(df)
+        df = self.atr.calculate_indicators(df)
         return df
-
-    def calculate_indicators_weights(self):
-        # Сюда можно будет добавить логику в зависимости от рынка менять веса
-        weights = {
-            "EMA": 0.75,
-            "ADX": 2.0,
-            "RSI": 1.0,
-            "MACD": 2.5,
-            "SAR": 0.75,
-        }
-        return weights
