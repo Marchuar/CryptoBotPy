@@ -122,15 +122,6 @@ class UniversalStrategy:
         print("***************Конец расчета скора***************")
         return score
 
-        # print("--------------Начало расчета скора--------------")
-        # print(f"Timestamp: {df["timestamp"].iloc[-1]}")
-        # score = 0
-        # close = df["close"].iloc[-1]
-        # df.loc[df.index[-1], "score"] = score
-        #
-        # # ATR
-        # atr = df["ATR"].iloc[-1]
-
     def calculate_indicators(self, df):
         df = self.ema.calculate_indicators(df)
         df = self.rsi.calculate_indicators(df)
