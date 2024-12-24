@@ -40,7 +40,7 @@ class UniversalStrategy:
         ema_short = df["EMA_short"].iloc[-1] / atr
         ema_long = df["EMA_long"].iloc[-1] / atr
         ema_hist = ema_short - ema_long
-        multiplier = 1.2 if abs(ema_hist) > 2.0 else 1.0
+        # multiplier = 1.2 if abs(ema_hist) > 2.0 else 1.0
 
         # Разница между ценой и EMA
         ema_diff = (close - ema_short) / atr
@@ -57,6 +57,68 @@ class UniversalStrategy:
         print(f"EMA short: {ema_short}, EMA long: {ema_long}, EMA hist: {ema_hist}, EMA Score: {ema_score}")
         return ema_score
 
+    # EMA v2
+    def evaluate_macd_v2(self, df, atr):
+        macd = df["macd"].iloc[-1]
+        macd_prev = df["macd"].iloc[-2]
+        specsignal = df["specsignal"].iloc[-1]
+        specsignal_prev = df["specsignal"].iloc[-2]
+        macd_hist = df["hist"].iloc[-1]
+        normalized_macd_hist = macd_hist / atr
+
+        # Пороговые значения
+        macd_narrow_threshold = 0.02  # Минимальная разница для сужения
+        macd_widen_threshold = 0.1  # Минимальная разница для расширения
+        macd_hist_treshold = 0.15  # Порог для гистограммы
+        macd_hist_border = 0.28  # Верхняя граница для гистограммы
+        macd_hist_multiplier = 1.45  # Мультипликатор для гистограммы
+        macd_cross = 0.01  # Порог для пересечения
+        macd_cross_multiplier = 1.4  # Мультипликатор для пересечения
+
+        macd_score = 0
+
+        # Разница между MACD и Specsignal
+        macd_diff = abs(macd - specsignal)
+        macd_diff_prev = abs(macd_prev - specsignal_prev)
+
+        # Проверка на сужение с учетом порогов и направления
+        if macd_diff < macd_diff_prev and macd_diff > macd_narrow_threshold:
+            print("MACD и Specsignal сужаются (в пределах допустимого диапазона)")
+            if macd > specsignal:  # MACD выше сигнальной линии
+                macd_score -= self.weights["MACD"] * 0.8  # Сигнал на sell
+            elif macd < specsignal:  # MACD ниже сигнальной линии
+                macd_score += self.weights["MACD"] * 0.8  # Сигнал на buy
+
+        # Проверка на пересечение
+        if (macd_prev < specsignal_prev and macd > specsignal) or (macd_prev > specsignal_prev and macd < specsignal):
+            print("Пересечение MACD и Specsignal")
+            macd_score += self.weights["MACD"] * macd_cross_multiplier * (-1 if macd < specsignal else 1)
+
+        # Проверка на расширение с учетом порогов
+        if macd_diff > macd_diff_prev and macd_diff > macd_widen_threshold:
+            print("MACD и Specsignal расширяются (в пределах допустимого диапазона)")
+            macd_score += self.weights["MACD"] * 1.2 * (-1 if macd < specsignal else 1)
+
+        # Игнорируем шум (слишком частые колебания)
+        if macd_diff < macd_narrow_threshold and macd_diff_prev < macd_narrow_threshold:
+            print("MACD и Specsignal слишком близки, фильтруем шум")
+            return 0  # Не применяем мультипликаторы
+
+        # Дополнительная логика на основе гистограммы
+        if macd > specsignal:
+            if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
+                macd_score += self.weights["MACD"] * macd_hist_multiplier
+            else:
+                macd_score += self.weights["MACD"]
+        elif macd < specsignal:
+            if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
+                macd_score -= self.weights["MACD"] * macd_hist_multiplier
+            else:
+                macd_score -= self.weights["MACD"]
+
+        print(f"MACD: {macd}, Specsignal: {specsignal}, MACD Score: {macd_score}")
+        return macd_score
+
     # ADX
     def evaluate_adx(self, df, score):
         adx = df["adx"].iloc[-1]
@@ -67,10 +129,10 @@ class UniversalStrategy:
 
         # RSI
 
-    def evaluate_rsi(self, df, score):
+    def evaluate_rsi(self, df, score, adx):
 
         rsi = df["RSI"].iloc[-1]
-        if 45 <= rsi <= 55:
+        if 45 <= rsi <= 55 and adx <= 26:
             score = 0.0
             print(f">>>> RSI: {rsi}, не торгуем, плохой rsi")
             return score
@@ -121,7 +183,6 @@ class UniversalStrategy:
                 macd_score = self.weights["MACD"] * macd_hist_multiplier
             else:
                 macd_score = self.weights["MACD"]
-
         elif macd < specsignal:
             if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
                 macd_score = -self.weights["MACD"] * macd_hist_multiplier
@@ -146,13 +207,14 @@ class UniversalStrategy:
 
         score = 0
         atr = df["ATR"].iloc[-1]
+        adx = df["adx"].iloc[-1]
         close = df["close"].iloc[-1]
 
         score += self.evaluate_ema(df, atr, close)
         score += self.evaluate_macd(df, atr)
         score += self.evaluate_sar(df, close)
         score = self.evaluate_adx(df, score)  # multiply
-        score = self.evaluate_rsi(df, score)  # multiply
+        score = self.evaluate_rsi(df, score, adx)  # multiply
 
         df.loc[df.index[-1], "score"] = score
         print(f"General score: {score}")
