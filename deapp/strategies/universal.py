@@ -5,8 +5,8 @@ from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndic
 class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
-        self.universal_buy_treshold = 2.8
-        self.universal_sell_treshold = -2.84
+        self.universal_buy_treshold = 2.7
+        self.universal_sell_treshold = -2.55
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
         self.macd = MACDIndicator()
@@ -71,11 +71,10 @@ class UniversalStrategy:
 
     # EMA
     def evaluate_ema(self, df, atr, close, score):
-        curr_ema_short = df["EMA_short"].iloc[-1] / atr
-        curr_ema_long = df["EMA_long"].iloc[-1] / atr
-        prev_ema_short = df["EMA_short"].iloc[-2] / atr
-        prev_ema_long = df["EMA_long"].iloc[-2] / atr
-        close /= atr
+        curr_ema_short = df["EMA_short"].iloc[-1]
+        curr_ema_long = df["EMA_long"].iloc[-1]
+        prev_ema_short = df["EMA_short"].iloc[-2]
+        prev_ema_long = df["EMA_long"].iloc[-2]
 
         # Multiplier
         ema_multiplier = 1.0
@@ -89,7 +88,7 @@ class UniversalStrategy:
 
         # Минимальный порог для начала анализа мультипликатора
         if close > 10000:
-            ema_threshold = curr_ema_long * 0.005 # Если они на расстоянии меньше 0.5% от EMA long
+            ema_threshold = curr_ema_long * 0.05 # Если они на расстоянии меньше 0.5% от EMA long
             diff_factor = curr_ema_long * 0.0025 # Если изменение расстояния между ними составляет больше 0.3%
         else:
             ema_threshold = curr_ema_long * 0.01 # Если они на расстоянии меньше 1% от EMA long
@@ -100,6 +99,7 @@ class UniversalStrategy:
             # 1.Пересечение
             if curr_ema_diff * prev_ema_diff <= 0:
                 ema_multiplier = 1.4
+                print("Пересечение EMA")
             # 2.Сужение
             elif abs(prev_ema_diff) > abs(curr_ema_diff):
                 # Стремительное (надо подобрать хорошее значение)
@@ -144,9 +144,14 @@ class UniversalStrategy:
         macd_extension_threshold = 0.065  # Минимальная разница для расширения
 
         # Multiplicators
-        macd_extension_multiplier = 1.2
-        macd_cross_multiplier = 1.4
-        macd_narrow_multiplier = 1.5
+        # macd_extension_multiplier = 1.2
+        # macd_cross_multiplier = 1.4
+        # macd_narrow_multiplier = 1.5
+
+        # Multiplicators
+        macd_extension_multiplier = 1.4
+        macd_cross_multiplier = 1.6
+        macd_narrow_multiplier = 1.7
 
         # Логика пересечения
         if normalized_macd_hist * normalized_macd_hist_prev <= 0:
