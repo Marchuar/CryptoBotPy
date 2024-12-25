@@ -91,7 +91,7 @@ class UniversalStrategy:
             ema_threshold = curr_ema_long * 0.05 # Если они на расстоянии меньше 0.5% от EMA long
             diff_factor = curr_ema_long * 0.0025 # Если изменение расстояния между ними составляет больше 0.3%
         else:
-            ema_threshold = curr_ema_long * 0.01 # Если они на расстоянии меньше 1% от EMA long
+            ema_threshold = curr_ema_long * 0.1 # Если они на расстоянии меньше 1% от EMA long
             diff_factor = curr_ema_long * 0.005 # Если изменение расстояния между ними составляет больше 0.7%
 
         # Границы разницы EMA long и EMA short (подобрать хорошее число для границы)
