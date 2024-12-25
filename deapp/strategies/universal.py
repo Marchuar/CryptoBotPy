@@ -6,7 +6,7 @@ class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
         self.universal_buy_treshold = 2.7
-        self.universal_sell_treshold = -2.55
+        self.universal_sell_treshold = -3
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
         self.macd = MACDIndicator()
@@ -88,11 +88,11 @@ class UniversalStrategy:
 
         # Минимальный порог для начала анализа мультипликатора
         if close > 10000:
-            ema_threshold = curr_ema_long * 0.05 # Если они на расстоянии меньше 0.5% от EMA long
-            diff_factor = curr_ema_long * 0.0025 # Если изменение расстояния между ними составляет больше 0.3%
+            ema_threshold = curr_ema_long * 0.05  # Если они на расстоянии меньше 0.5% от EMA long
+            diff_factor = curr_ema_long * 0.0025  # Если изменение расстояния между ними составляет больше 0.3%
         else:
-            ema_threshold = curr_ema_long * 0.1 # Если они на расстоянии меньше 1% от EMA long
-            diff_factor = curr_ema_long * 0.005 # Если изменение расстояния между ними составляет больше 0.7%
+            ema_threshold = curr_ema_long * 0.1  # Если они на расстоянии меньше 1% от EMA long
+            diff_factor = curr_ema_long * 0.005  # Если изменение расстояния между ними составляет больше 0.5%
 
         # Границы разницы EMA long и EMA short (подобрать хорошее число для границы)
         if abs(curr_ema_diff) < ema_threshold:
@@ -123,7 +123,6 @@ class UniversalStrategy:
         # Score after EMA
         score = score * ema_multiplier
 
-
         print(f"EMA short: {curr_ema_short}, EMA long: {curr_ema_long}, Score after EMA: {score}")
         return score
 
@@ -142,6 +141,7 @@ class UniversalStrategy:
         # Tresholds
         macd_narrow_threshold = 0.065  # Минимальная разница для сужения
         macd_extension_threshold = 0.065  # Минимальная разница для расширения
+        strong_movement_threshold = 20  # Порог для сильного изменения (20%)
 
         # Multiplicators
         # macd_extension_multiplier = 1.2
@@ -150,8 +150,12 @@ class UniversalStrategy:
 
         # Multiplicators
         macd_extension_multiplier = 1.4
-        macd_cross_multiplier = 1.6
+        macd_cross_multiplier = 1.8
         macd_narrow_multiplier = 1.7
+        strong_movement_multiplier = 1.8  # Дополнительный множитель для сильных изменений
+
+        # Относительное изменение hist
+        hist_change = abs(normalized_macd_hist - normalized_macd_hist_prev) / abs(normalized_macd_hist_prev) * 100
 
         # Логика пересечения
         if normalized_macd_hist * normalized_macd_hist_prev <= 0:
@@ -168,8 +172,15 @@ class UniversalStrategy:
             print("MACD и Specsignal расширяются в пределах диапозона")
             score *= macd_extension_multiplier
 
+        # Логика сильного изменения
+        if hist_change >= strong_movement_threshold:
+            print("Сильное изменение гистограммы MACD")
+            score *= strong_movement_multiplier
+
         print(f"Score after MACD: {score}, "
-              f"MACD: {macd}, Specsignal: {specsignal}, MACD hist: {normalized_macd_hist}, MACD prev hist: {normalized_macd_hist_prev}, "
+              f"MACD: {macd}, Specsignal: {specsignal}, "
+              f"MACD hist: {normalized_macd_hist}, MACD prev hist: {normalized_macd_hist_prev}, "
+              f"Hist change: {hist_change}%"
               f"Trend: {trend}")
         return score
 
@@ -204,47 +215,6 @@ class UniversalStrategy:
             f"RSI: {rsi}, RSI multiplier 30_70: {rsi_30_70_multiplier}, "
             f"RSI multiplier 40_60: {rsi_40_60_multiplier}")
         return score
-
-    # # MACD
-    # def evaluate_macd(self, df, atr):
-    #     macd = df["macd"].iloc[-1]
-    #     macd_prev = df["macd"].iloc[-2]
-    #     specsignal = df["specsignal"].iloc[-1]
-    #     specsignal_prev = df["specsignal"].iloc[-2]
-    #     macd_hist = df["hist"].iloc[-1]
-    #     normalized_macd_hist = macd_hist / atr
-    #     macd_score = 0
-    #     macd_hist_treshold = 0.15
-    #     macd_hist_border = 0.28
-    #     macd_hist_multiplier = 1.45
-    #     macd_cross = 0.01
-    #     macd_cross_multiplyer = 1.4
-    #
-    #     # Усиление эффекта MACD, если гистограмма превышает порог
-    #     # if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
-    #     #     macd_score = self.weights["MACD"] * macd_hist_multiplier
-    #
-    #     # Обработка пересечения MACD с нулевой линией
-    #     if abs(normalized_macd_hist) < macd_cross:
-    #         if macd_prev < specsignal_prev:
-    #             macd_score = self.weights["MACD"] * macd_cross_multiplyer
-    #         elif macd_prev > specsignal_prev:
-    #             macd_score = -self.weights["MACD"] * macd_cross_multiplyer
-    #     elif macd > specsignal:
-    #         if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
-    #             macd_score = self.weights["MACD"] * macd_hist_multiplier
-    #         else:
-    #             macd_score = self.weights["MACD"]
-    #     elif macd < specsignal:
-    #         if macd_hist_treshold < abs(normalized_macd_hist) <= macd_hist_border:
-    #             macd_score = -self.weights["MACD"] * macd_hist_multiplier
-    #         else:
-    #             macd_score = -self.weights["MACD"]
-    #
-    #     print(f"Normalized MACD Hist: {normalized_macd_hist}, Multiplier Applied: {macd_hist_multiplier}")
-    #     print(
-    #         f"MACD: {macd}, Specsignal: {specsignal}, Hist: {macd_hist}, Normalized Hist: {normalized_macd_hist}, MACD score: {macd_score}")
-    #     return macd_score
 
     # Parabolic SAR
     def evaluate_sar(self, df, close, trend, score):
