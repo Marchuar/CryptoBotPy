@@ -9,7 +9,7 @@ from strategies.universal import UniversalStrategy
 def test_from_exchange(
         exchange=get_connection("bybit"),
         strategy=UniversalStrategy(),
-        symbol="XLMUSDT",
+        symbol="BTCUSDT",
         timeframe="1h",
         since="2024-12-01T00:00:00Z"
 ):

@@ -1,3 +1,5 @@
+import logging
+
 from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator, \
     ATRIndicator
 
@@ -5,7 +7,7 @@ from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndic
 class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
-        self.universal_buy_treshold = 2.9
+        self.universal_buy_treshold = 2.8
         self.universal_sell_treshold = -2.84
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
@@ -36,26 +38,62 @@ class UniversalStrategy:
         return "no_signal"
 
     # EMA
-    def evaluate_ema(self, df, atr, close):
-        ema_short = df["EMA_short"].iloc[-1] / atr
-        ema_long = df["EMA_long"].iloc[-1] / atr
-        ema_hist = ema_short - ema_long
-        # multiplier = 1.2 if abs(ema_hist) > 2.0 else 1.0
+    def evaluate_ema(self, df, atr, close, score):
+        curr_ema_short = df["EMA_short"].iloc[-1] / atr
+        curr_ema_long = df["EMA_long"].iloc[-1] / atr
+        prev_ema_short = df["EMA_short"].iloc[-2] / atr
+        prev_ema_long = df["EMA_long"].iloc[-2] / atr
+        close /= atr
 
-        # Разница между ценой и EMA
-        ema_diff = (close - ema_short) / atr
-        diff_multiplier = 1.5 if abs(ema_diff) > 1.1 else 1.0
+        # Multiplier
+        ema_multiplier = 1.0
 
-        # Наклон EMA
-        ema_slope = ema_short - ema_long
-        slope_multiplier = 1.2 if abs(ema_slope) > 0.01 else 1.0
+        # Test
+        # score = 1
 
-        if ema_diff > 0:
-            ema_score = self.weights["EMA"] * diff_multiplier * slope_multiplier
+        # Растояние между EMA Short и EMA Long
+        curr_ema_diff = curr_ema_long - curr_ema_short
+        prev_ema_diff = prev_ema_long - prev_ema_short
+
+        # Минимальный порог для начала анализа мультипликатора
+        if close > 10000:
+            ema_threshold = curr_ema_long * 0.005 # Если они на расстоянии меньше 0.5% от EMA long
+            diff_factor = curr_ema_long * 0.0025 # Если изменение расстояния между ними составляет больше 0.3%
         else:
-            ema_score = -self.weights["EMA"] * diff_multiplier * slope_multiplier
-        print(f"EMA short: {ema_short}, EMA long: {ema_long}, EMA hist: {ema_hist}, EMA Score: {ema_score}")
-        return ema_score
+            ema_threshold = curr_ema_long * 0.01 # Если они на расстоянии меньше 1% от EMA long
+            diff_factor = curr_ema_long * 0.005 # Если изменение расстояния между ними составляет больше 0.7%
+
+        # Границы разницы EMA long и EMA short (подобрать хорошее число для границы)
+        if abs(curr_ema_diff) < ema_threshold:
+            # 1.Пересечение
+            if curr_ema_diff * prev_ema_diff <= 0:
+                ema_multiplier = 1.4
+            # 2.Сужение
+            elif abs(prev_ema_diff) > abs(curr_ema_diff):
+                # Стремительное (надо подобрать хорошее значение)
+                if abs(prev_ema_diff) - abs(curr_ema_diff) > diff_factor:
+                    ema_multiplier = 1.4
+                # Не стремительное
+                else:
+                    ema_multiplier = 1.2
+            # 3. Расширение
+            elif abs(curr_ema_diff) > abs(prev_ema_diff):
+                # Стремительное (надо подобрать хорошее значение)
+                if abs(curr_ema_diff) - abs(prev_ema_diff) > diff_factor:
+                    ema_multiplier = 1.3
+                # Не стремительное
+                else:
+                    ema_multiplier = 1.1
+        # Не соответствует значению границы разницы EMA
+        else:
+            ema_multiplier = 1.0
+
+        # Score after EMA
+        score = score * ema_multiplier
+
+
+        print(f"EMA short: {curr_ema_short}, EMA long: {curr_ema_long}, Score after EMA: {score}")
+        return score
 
     # EMA v2
     def evaluate_macd_v2(self, df, atr):
@@ -210,8 +248,8 @@ class UniversalStrategy:
         adx = df["adx"].iloc[-1]
         close = df["close"].iloc[-1]
 
-        score += self.evaluate_ema(df, atr, close)
         score += self.evaluate_macd(df, atr)
+        score += self.evaluate_ema(df, atr, close, score) # multiply
         score += self.evaluate_sar(df, close)
         score = self.evaluate_adx(df, score)  # multiply
         score = self.evaluate_rsi(df, score, adx)  # multiply
