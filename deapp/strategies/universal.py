@@ -1,6 +1,6 @@
 from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator, \
     ATRIndicator
-
+from strategies.indicators.cci import CCIIndicator
 
 class UniversalStrategy:
     def __init__(self):
@@ -13,11 +13,13 @@ class UniversalStrategy:
         self.sar = ParabolicSARIndicator()
         self.adx = ADXIndicator()
         self.atr = ATRIndicator()
+        self.cci = CCIIndicator()
         self.candles_amount = max(self.ema.candles_amount,
                                   self.rsi.candles_amount,
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
-                                  self.adx.candles_amount)
+                                  self.adx.candles_amount,
+                                  self.cci.candles_amount)
         self.weights = {
             "EMA": 0.25,
             "ADX": 0.5,
@@ -99,26 +101,31 @@ class UniversalStrategy:
             # 1.Пересечение
             if curr_ema_diff * prev_ema_diff <= 0:
                 ema_multiplier = 1.4
-                print("Пересечение EMA")
+                print("EMA: Пересечение EMA")
             # 2.Сужение
             elif abs(prev_ema_diff) > abs(curr_ema_diff):
                 # Стремительное (надо подобрать хорошее значение)
                 if abs(prev_ema_diff) - abs(curr_ema_diff) > diff_factor:
                     ema_multiplier = 1.4
+                    print("EMA: Стремительное сужение")
                 # Не стремительное
                 else:
                     ema_multiplier = 1.2
+                    print("EMA: Обычное сужение")
             # 3. Расширение
             elif abs(curr_ema_diff) > abs(prev_ema_diff):
                 # Стремительное (надо подобрать хорошее значение)
                 if abs(curr_ema_diff) - abs(prev_ema_diff) > diff_factor:
                     ema_multiplier = 1.3
+                    print("EMA: Стремительное расширение")
                 # Не стремительное
                 else:
                     ema_multiplier = 1.1
+                    print("EMA: Обычное расширение")
         # Не соответствует значению границы разницы EMA
         else:
             ema_multiplier = 1.0
+            print("EMA: Не входит в границы")
 
         # Score after EMA
         score = score * ema_multiplier
@@ -243,6 +250,19 @@ class UniversalStrategy:
         print(f"Score after SAR: {score}, Parabolic Sar: {parabolic_sar}")
         return score
 
+    def evaluate_cci(self, df, score, trend):
+        curr_cci = df["CCI"].iloc[-1]
+
+        if (curr_cci < 0 and curr_cci <= -100.0) or (curr_cci > 0 and curr_cci >= 100.0):
+            score *= 1.1
+        elif (curr_cci > 0 and curr_cci < 80.0) or (curr_cci < 0 and curr_cci > -80.0):
+            score *= 0.9
+        else:
+            score *= 1.0 # Оставляем как было
+
+        print(f"Score after CCI: {score}, CCI: {curr_cci}")
+        return score
+
     def calculate_signal_score(self, df, trend, atr, close):
         print("--------------Начало расчета скора--------------")
         print(f"Timestamp: {df['timestamp'].iloc[-1]}")
@@ -254,6 +274,7 @@ class UniversalStrategy:
         score = self.evaluate_adx(df, score)
         score = self.evaluate_rsi(df, score)
         score = self.evaluate_macd(df, score, trend, atr)
+        score = self.evaluate_cci(df, score, trend)
 
         df.loc[df.index[-1], "score"] = score
         print(f"General score: {score}")
@@ -267,4 +288,5 @@ class UniversalStrategy:
         df = self.sar.calculate_indicators(df)
         df = self.adx.calculate_indicators(df)
         df = self.atr.calculate_indicators(df)
+        df = self.cci.calculate_indicators(df)
         return df
