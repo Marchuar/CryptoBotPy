@@ -12,7 +12,7 @@ def test_from_exchange(
         strategy=UniversalStrategy(),
         symbol="XLMUSDT",
         timeframe="1h",
-        since="2024-12-01T00:00:00Z"
+        since="2024-11-15T00:00:00Z"
 ):
     logging.info("Загружаем исторические данные из биржи")
     data = fetch_history_data_from_exchange(exchange, symbol, timeframe, since)

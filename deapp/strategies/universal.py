@@ -1,11 +1,11 @@
 from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator, \
-    ATRIndicator
+    ATRIndicator, CVDIndicator
 from strategies.indicators.cci import CCIIndicator
 
 class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
-        self.universal_buy_treshold = 2.7
+        self.universal_buy_treshold = 3.1
         self.universal_sell_treshold = -3
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
@@ -14,29 +14,37 @@ class UniversalStrategy:
         self.adx = ADXIndicator()
         self.atr = ATRIndicator()
         self.cci = CCIIndicator()
+        self.cvd = CVDIndicator()
         self.candles_amount = max(self.ema.candles_amount,
                                   self.rsi.candles_amount,
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
                                   self.adx.candles_amount,
                                   self.cci.candles_amount)
-        self.weights = {
-            "EMA": 0.25,
-            "ADX": 0.5,
-            "RSI": 1.25,
-            "MACD": 1.2,
-            "SAR": 0.25,
-        }
 
-    def determine_trend(self, macd, macd_prev, rsi, adx):
+    def determine_trend(self, macd_hist, macd_hist_prev, rsi, adx, recent_prices):
+
+        # Расчет диапазона цен для определения бокового движения
+        max_price = recent_prices.max()
+        min_price = recent_prices.min()
+        avg_price = (max_price + min_price) / 2
+        price_range = max_price - min_price
+        percent_range = (price_range / avg_price) * 100
+
+        range_threshold = 5.0  # Процентный порог для бокового движения
+
+        # if percent_range <= range_threshold:
+        #     print(
+        #         f">>>> Диапазон цен {price_range} ({percent_range:.2f}%) меньше {range_threshold}%. Боковое движение.")
+        #     return "no_signal"
 
         if 45 <= rsi <= 55 and adx <= 26:
             print(f">>>> RSI: {rsi}, ADX: {adx} - не торгуем")
             return "no_signal"
         else:
-            if macd > macd_prev:
+            if macd_hist > macd_hist_prev:
                 return "buy"
-            elif macd < macd_prev:
+            elif macd_hist < macd_hist_prev:
                 return "sell"
             return "no_signal"
 
@@ -52,18 +60,22 @@ class UniversalStrategy:
 
         macd = df["macd"].iloc[-1]
         macd_prev = df["macd"].iloc[-2]
+        macd_hist = df["hist"].iloc[-1]
+        macd_hist_prev = df["hist"].iloc[-2]
         rsi = df["RSI"].iloc[-1]
         adx = df["adx"].iloc[-1]
         atr = df["ATR"].iloc[-1]
         close = df["close"].iloc[-1]
+        close_prev = df["close"].iloc[-2]
+        recent_prices = df["close"].iloc[-10:]  # Последние цены закрытия 20 свечей
 
         # Смотрим какой тренд, на покупку или продажу
-        trend = self.determine_trend(macd, macd_prev, rsi, adx)
+        trend = self.determine_trend(macd_hist, macd_hist_prev, rsi, adx, recent_prices)
 
         if trend == "no_signal":
             return "no_signal"
 
-        score = self.calculate_signal_score(df, trend, atr, close)
+        score = self.calculate_signal_score(df, trend, atr, close, close_prev)
 
         if score >= self.universal_buy_treshold:
             return "buy"
@@ -148,7 +160,7 @@ class UniversalStrategy:
         # Tresholds
         macd_narrow_threshold = 0.065  # Минимальная разница для сужения
         macd_extension_threshold = 0.065  # Минимальная разница для расширения
-        strong_movement_threshold = 20  # Порог для сильного изменения (20%)
+        strong_movement_threshold = 100  # Порог для сильного изменения (%)
 
         # Multiplicators
         # macd_extension_multiplier = 1.2
@@ -200,6 +212,18 @@ class UniversalStrategy:
             score *= adx_multiplier
         print(f"Score after ADX: {score}, ADX: {adx}")
         return score
+
+    def evaluate_cvd(self, df, close, close_prev):
+        cvd = df["CVD"].iloc[-1]
+        cvd_prev = df["CVD"].iloc[-2]
+
+        # Проверка на дивергенции
+        if close > close_prev and cvd < cvd_prev:
+            print("Short: проверка CVD")
+        elif close < close_prev and cvd > cvd_prev:
+            print("Long: проверка CVD")
+        else:
+            print("Nothing: проверка CVD")
 
     # RSI
     def evaluate_rsi(self, df, score):
@@ -263,7 +287,7 @@ class UniversalStrategy:
         print(f"Score after CCI: {score}, CCI: {curr_cci}")
         return score
 
-    def calculate_signal_score(self, df, trend, atr, close):
+    def calculate_signal_score(self, df, trend, atr, close, close_prev):
         print("--------------Начало расчета скора--------------")
         print(f"Timestamp: {df['timestamp'].iloc[-1]}")
 
@@ -274,6 +298,7 @@ class UniversalStrategy:
         score = self.evaluate_adx(df, score)
         score = self.evaluate_rsi(df, score)
         score = self.evaluate_macd(df, score, trend, atr)
+        # self.evaluate_cvd(df, close, close_prev) / не работает, пересмотреть логику
         score = self.evaluate_cci(df, score, trend)
 
         df.loc[df.index[-1], "score"] = score
@@ -288,5 +313,6 @@ class UniversalStrategy:
         df = self.sar.calculate_indicators(df)
         df = self.adx.calculate_indicators(df)
         df = self.atr.calculate_indicators(df)
+        df = self.cvd.calculate_indicators(df)
         df = self.cci.calculate_indicators(df)
         return df
