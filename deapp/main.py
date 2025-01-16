@@ -4,7 +4,7 @@ from constants import DEFAULT_ANALYZE_INTERVAL
 from loger_setup import setup_logging
 from connect import init_connection
 import logging
-from bot import start, stop, start_ema, start_bb, start_macd
+from bot import start, stop
 from analyze_market import analyze_market
 from strategies.universal import UniversalStrategy
 
@@ -30,9 +30,6 @@ def main():
 
     # add commands
     app.add_handler(CommandHandler("start", start))
-    app.add_handler(CommandHandler("ema", start_ema))
-    app.add_handler(CommandHandler("bb", start_bb))
-    app.add_handler(CommandHandler("macd", start_macd))
     app.add_handler(CommandHandler("stop", stop))
 
     # start bot

@@ -4,55 +4,23 @@ from telegram import Update, Bot
 from telegram.ext import CallbackContext
 
 bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
-user_ids_ema = []
-user_ids_bb = []
-user_ids_macd = []
+user_ids = []
 
 
 async def start(update: Update, context: CallbackContext):
-    await update.message.reply_text("Привет, DickiyEarning это инструмент для заработка !(огромного количества капусты)")
-
-async def start_ema(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids_ema:
-        await update.message.reply_text("Вы уже подписаны на рассылку EMA")
+    if user_id in user_ids:
+        await update.message.reply_text("Вы уже подписаны на рассылку")
     else:
-        user_ids_ema.append(user_id)
-        await update.message.reply_text("Вы подписались на рассылку EMA")
+        user_ids.append(user_id)
+        await update.message.reply_text("Вы подписались на рассылку")
         logging.info(user_id)
-
-async def start_bb(update: Update, context: CallbackContext):
-    user_id = update.effective_chat.id
-    if user_id in user_ids_bb:
-        await update.message.reply_text("Вы уже подписаны на рассылку BB")
-    else:
-        user_ids_bb.append(user_id)
-        await update.message.reply_text("Вы подписались на рассылку BB")
-        logging.info(user_id)
-
-async def start_macd(update: Update, context: CallbackContext):
-    user_id = update.effective_chat.id
-    if user_id in user_ids_macd:
-        await update.message.reply_text("Вы уже подписаны на рассылку MACD")
-    else:
-        user_ids_macd.append(user_id)
-        await update.message.reply_text("Вы подписались на рассылку MACD")
-        logging.info(user_id)
-
 
 async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids_ema:
-        user_ids_ema.remove(user_id)
+    if user_id in user_ids:
+        user_ids.remove(user_id)
         logging.info(user_id)
-        await update.message.reply_text("Вы отписались от рассылки EMA")
-    elif user_id in user_ids_bb:
-        user_ids_bb.remove(user_id)
-        logging.info(user_id)
-        await update.message.reply_text("Вы отписались от рассылки BB")
-    elif user_id in user_ids_macd:
-        user_ids_macd.remove(user_id)
-        logging.info(user_id)
-        await update.message.reply_text("Вы отписались от рассылки MACD")
+        await update.message.reply_text("Вы отписались от рассылки")
     else:
         await update.message.reply_text("Вы ещё не получаете рассылки")

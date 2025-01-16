@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 from telegram.ext import ContextTypes
-from bot import bot, user_ids_ema, user_ids_bb, user_ids_macd
+from bot import bot, user_ids
 from connect import get_connection
 from constants import DEFAULT_ANALYZE_TIMEFRAME, DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
@@ -36,26 +36,20 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE,
                 strategy.calculate_indicators(df)
             )
             logging.info("...\nResult >>>>")
-            logging.info(strategy.name + f", signal: \"{signal}\"")
+            logging.info(strategy.name[0] + f", signal: \"{signal}\"")
             logging.info(f"Analyze took: {(datetime.now() - start)}")
 
             if signal and signal != "no_signal":
                 message = {
                     "exchange": exchange.id,
                     "symbol": symbol,
-                    "strategy": strategy.name,
+                    "strategy": strategy.name[0],
                     "timeframe": timeframe,
                     "signal": signal,
                 }
 
-                if strategy.name == "EMA_with_RSI_and_ATR":
-                    for user_id in user_ids_ema:
-                        await bot.send_message(chat_id=user_id, text=message)
-                elif strategy.name == "BB_with_RSI_and_ATR":
-                    for user_id in user_ids_bb:
-                        await bot.send_message(chat_id=user_id, text=message)
-                elif strategy.name == "MACD_with_RSI_and_ATR":
-                    for user_id in user_ids_macd:
-                        await bot.send_message(chat_id=user_id, text=message)
+                for user_id in user_ids:
+                    await bot.send_message(chat_id=user_id, text=message)
+
         except Exception as e:
             logging.error(f"Ошибка обработки символа: {symbol}: {e}")
