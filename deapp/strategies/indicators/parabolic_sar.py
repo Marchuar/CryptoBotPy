@@ -6,7 +6,7 @@ from constants import DEFAULT_SAR_ACCELERATION, DEFAULT_SAR_MAXIMUM
 class ParabolicSARIndicator:
     def __init__(self, sar_acceleration=DEFAULT_SAR_ACCELERATION, sar_maximum=DEFAULT_SAR_MAXIMUM):
         self.name = "ParabolicSAR"
-        self.candles_amount = 30
+        self.candles_amount = 14
         self.sar_acceleration = sar_acceleration
         self.sar_maximum = sar_maximum
 
