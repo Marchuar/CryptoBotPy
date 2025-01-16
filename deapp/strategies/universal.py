@@ -22,7 +22,7 @@ class UniversalStrategy:
                                   self.adx.candles_amount,
                                   self.cci.candles_amount)
 
-    def determine_trend(self, macd_hist, macd_hist_prev, rsi, adx, recent_prices):
+    def determine_trend(self, macd_hist, macd_hist_prev, rsi, adx, cci, recent_prices):
 
         # Расчет диапазона цен для определения бокового движения
         max_price = recent_prices.max()
@@ -38,7 +38,11 @@ class UniversalStrategy:
         #         f">>>> Диапазон цен {price_range} ({percent_range:.2f}%) меньше {range_threshold}%. Боковое движение.")
         #     return "no_signal"
 
-        if 45 <= rsi <= 55 and adx <= 26:
+        if 0 <= cci <= 15 or 0 >= cci >= -15:
+            print(f">>>> CCI: {cci} - не торгуем")
+            return "no_signal"
+
+        if 43 <= rsi <= 57 and adx <= 27:
             print(f">>>> RSI: {rsi}, ADX: {adx} - не торгуем")
             return "no_signal"
         else:
@@ -65,12 +69,13 @@ class UniversalStrategy:
         rsi = df["RSI"].iloc[-1]
         adx = df["adx"].iloc[-1]
         atr = df["ATR"].iloc[-1]
+        cci = df["CCI"].iloc[-1]
         close = df["close"].iloc[-1]
         close_prev = df["close"].iloc[-2]
         recent_prices = df["close"].iloc[-10:]  # Последние цены закрытия 20 свечей
 
         # Смотрим какой тренд, на покупку или продажу
-        trend = self.determine_trend(macd_hist, macd_hist_prev, rsi, adx, recent_prices)
+        trend = self.determine_trend(macd_hist, macd_hist_prev, rsi, adx, cci, recent_prices)
 
         if trend == "no_signal":
             return "no_signal"
@@ -238,7 +243,7 @@ class UniversalStrategy:
             rsi_40_60_multiplier = 1.15
         else:
             rsi_30_70_multiplier = 1.0
-            rsi_40_60_multiplier = 1.0
+            rsi_40_60_multiplier = 0.9
 
         score = score * rsi_30_70_multiplier * rsi_40_60_multiplier
         print(
@@ -279,7 +284,9 @@ class UniversalStrategy:
 
         if (curr_cci < 0 and curr_cci <= -100.0) or (curr_cci > 0 and curr_cci >= 100.0):
             score *= 1.1
-        elif (curr_cci > 0 and curr_cci < 80.0) or (curr_cci < 0 and curr_cci > -80.0):
+        elif (0 < curr_cci < 40.0) or (0 > curr_cci > -40.0):
+            score *= 0.8
+        elif (0 < curr_cci < 80.0) or (0 > curr_cci > -80.0):
             score *= 0.9
         else:
             score *= 1.0 # Оставляем как было
