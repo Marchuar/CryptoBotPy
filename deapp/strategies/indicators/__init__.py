@@ -5,6 +5,7 @@ from .bb import BBIndicator
 from .macd import MACDIndicator
 from .ema import EMAIndicator
 from .adx import ADXIndicator
+from .cvd import CVDIndicator
 
 __all__ = ["ATRIndicator",
            "RSIIndicator",
@@ -12,4 +13,5 @@ __all__ = ["ATRIndicator",
            "BBIndicator",
            "MACDIndicator",
            "EMAIndicator",
-           "ADXIndicator"]
+           "ADXIndicator",
+           "CVDIndicator"]

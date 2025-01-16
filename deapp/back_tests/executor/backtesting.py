@@ -8,6 +8,7 @@ def run_testing(strategy, test_data, save_result=True):
 
     test_data = strategy.calculate_indicators(test_data)
     test_data['signal'] = "no_signal"
+    test_data['score'] = 0.0
 
     for i in range(strategy.candles_amount, len(test_data) + 1):
         subset = test_data.iloc[i - strategy.candles_amount:i]
