@@ -25,11 +25,13 @@ async def change_timeframe(update: Update, context: CallbackContext):
     keyboard = [
             [
                 InlineKeyboardButton("5 минут", callback_data="5m"),
+                InlineKeyboardButton("15 минут", callback_data="15m"),
                 InlineKeyboardButton("30 минут", callback_data="30m"),
             ],
             [
                 InlineKeyboardButton("1 час", callback_data="1h"),
                 InlineKeyboardButton("4 часа", callback_data="4h"),
+                InlineKeyboardButton("1 день", callback_data="1d"),
             ],
         ]
     reply_markup = InlineKeyboardMarkup(keyboard)
