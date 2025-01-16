@@ -1,0 +1,1 @@
+TIMEFRAME = "1h" # default value

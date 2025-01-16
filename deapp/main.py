@@ -1,10 +1,10 @@
-from telegram.ext import CommandHandler, ApplicationBuilder
+from telegram.ext import CommandHandler, ApplicationBuilder, CallbackQueryHandler
 
 from constants import DEFAULT_ANALYZE_INTERVAL
 from loger_setup import setup_logging
 from connect import init_connection
 import logging
-from bot import start, stop
+from bot import start, stop, change_timeframe, timeframe_callback
 from analyze_market import analyze_market
 from strategies.universal import UniversalStrategy
 
@@ -30,6 +30,8 @@ def main():
 
     # add commands
     app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("timeframe", change_timeframe))
+    app.add_handler(CallbackQueryHandler(timeframe_callback))
     app.add_handler(CommandHandler("stop", stop))
 
     # start bot
