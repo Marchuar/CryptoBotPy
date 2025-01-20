@@ -3,19 +3,18 @@ import logging
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ContextTypes
 import config
+from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user
 
 bot = Bot("***REMOVED_TG_TOKEN***")
-user_ids = []
 
 
 async def start(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids:
+    if tg_is_user_subscribed(user_id):
         await update.message.reply_text("Вы уже подписаны на рассылку")
     else:
-        user_ids.append(user_id)
+        tg_subscribe_user(user_id)
         await update.message.reply_text("Вы подписались на рассылку")
-        logging.info(user_id)
 
 async def change_timeframe(update: Update, context: CallbackContext):
     # добавить возможность изменять timeframe у каждого user отдельно
@@ -54,9 +53,8 @@ async def timeframe_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
 async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids:
-        user_ids.remove(user_id)
-        logging.info(user_id)
+    if tg_is_user_subscribed(user_id):
+        tg_unsubscribe_user(user_id)
         await update.message.reply_text("Вы отписались от рассылки")
     else:
         await update.message.reply_text("Вы ещё не получаете рассылки")
