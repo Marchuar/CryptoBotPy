@@ -3,7 +3,6 @@ from datetime import datetime
 
 from bot import bot
 from connect import get_connection
-import config
 from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
 from market_filter.market_item_type import get_perpetual
@@ -16,8 +15,6 @@ async def analyze_market(user_id, timeframe,
                          exchange=get_connection("bybit"),
                          symbols=DEFAULT_ANALYZE_SYMBOLS,
                          all_symbols_mode=DEFAULT_ANALYZE_ALL_SYMBOLS_MODE):
-    # Получаем timeframe
-    timeframe = config.TIMEFRAME
 
     # Достаем все символы и фильтруем их, если режим включен
     if all_symbols_mode:
