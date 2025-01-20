@@ -1,22 +1,21 @@
 import logging
 from datetime import datetime
-from telegram.ext import ContextTypes
-from bot import bot, user_ids
+
+from bot import bot
 from connect import get_connection
 import config
 from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
 from market_filter.market_item_type import get_perpetual
+from strategies.universal import UniversalStrategy
 import pandas as pd
 
 
-async def analyze_market(context: ContextTypes.DEFAULT_TYPE,
+async def analyze_market(user_id, timeframe,
+                         strategy=UniversalStrategy(),
                          exchange=get_connection("bybit"),
                          symbols=DEFAULT_ANALYZE_SYMBOLS,
                          all_symbols_mode=DEFAULT_ANALYZE_ALL_SYMBOLS_MODE):
-    # Получаем стратегию
-    strategy = context.job.data
-
     # Получаем timeframe
     timeframe = config.TIMEFRAME
 
@@ -46,13 +45,11 @@ async def analyze_market(context: ContextTypes.DEFAULT_TYPE,
                 message = {
                     "exchange": exchange.id,
                     "symbol": symbol,
-                    "strategy": strategy.name[0],
+                    "strategy": strategy.name,
                     "timeframe": timeframe,
                     "signal": signal,
                 }
-
-                for user_id in user_ids:
-                    await bot.send_message(chat_id=user_id, text=message)
+                await bot.send_message(chat_id=user_id, text=message)
 
         except Exception as e:
             logging.error(f"Ошибка обработки символа: {symbol}: {e}")
