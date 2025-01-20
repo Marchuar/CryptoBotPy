@@ -82,3 +82,14 @@ def tg_get_user_timeframe(user_id):
             """, user_id)
     result = cursor.fetchone()
     return result[0]
+
+def db_get_subscribed_users():
+    with db_connection() as cursor:
+        cursor.execute("""
+                SELECT user_id
+                FROM users
+                WHERE is_subscribed = TRUE
+            """)
+    result = cursor.fetchall()
+    return result
+
