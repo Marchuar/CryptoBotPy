@@ -3,7 +3,7 @@ import logging
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ContextTypes
 import config
-from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user
+from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe, tg_get_user_timeframe
 
 bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
 
@@ -43,13 +43,11 @@ async def timeframe_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer()  # Обязательно вызываем, чтобы убрать "крутящийся кружок"
 
     # Извлекаем значение таймфрейма
-    selected_timeframe = query.data
-
-    # Изменяем timeframe
-    config.TIMEFRAME = selected_timeframe
+    user_id = update.effective_chat.id
+    tg_update_user_timeframe(user_id, query.data)
 
     # Отвечаем пользователю
-    await query.edit_message_text(f"Вы выбрали таймфрейм: {selected_timeframe}")
+    await query.edit_message_text(f"Вы выбрали таймфрейм: {tg_get_user_timeframe(user_id)}")
 
 async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
