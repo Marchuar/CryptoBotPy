@@ -1,45 +1,62 @@
 import psycopg2
+from psycopg2 import pool
 import logging
 from contextlib import contextmanager
 
-#TODO Убрать в конфиг, создать постоянный файл .env на серваке
+# TODO Убрать в конфиг, создать постоянный файл .env на серваке
 DB_HOST = "dpg-cu77eedsvqrc7396mu1g-a.frankfurt-postgres.render.com"
 DB_NAME = "dedb"
 DB_PASSWORD = "mvDRhRJFojBzDP7dhQshPqkgT7hPpune"
 DB_USERNAME = "root"
 DB_PORT = "5432"
+connection_pool = None
 
-def get_connection():
+
+def initialize_connection_pool():
+    """
+    Initialize the connection pool.
+    """
+    global connection_pool
     try:
-        conn = psycopg2.connect(
+        connection_pool = psycopg2.pool.SimpleConnectionPool(
+            minconn=1,  # Minimum number of connections
+            maxconn=10,  # Maximum number of connections
             host=DB_HOST,
             database=DB_NAME,
             user=DB_USERNAME,
             password=DB_PASSWORD,
             port=DB_PORT
         )
-        return conn
+        logging.info("Connection pool initialized successfully.")
     except Exception as e:
-        logging.ERROR(f"Ошибка подключения к базе данных: {e}")
-        return None
+        logging.error(f"Error initializing connection pool: {e}")
+        raise e
+
 
 @contextmanager
 def db_connection():
     conn = None
+    cursor = None
     try:
-        conn = get_connection()
-        if conn is None:
-            raise Exception("Не удалось подключиться к базе данных")
-        yield conn.cursor()
+        # Set a reasonable timeout for acquiring a connection
+        conn = connection_pool.getconn()
+        cursor = conn.cursor()
+        yield cursor
         conn.commit()
+    except psycopg2.pool.PoolError as e:
+        logging.error(f"Pool timeout: {e}")
+        raise e
     except Exception as e:
         if conn:
             conn.rollback()
-        logging.ERROR(f"Ошибка работы с базой данных: {e}")
+        logging.error(f"Database operation error: {e}")
         raise e
     finally:
+        if cursor:
+            cursor.close()
         if conn:
-            conn.close()
+            connection_pool.putconn(conn)
+
 
 # Инициализация базы данных
 def initialize_database():
@@ -54,6 +71,6 @@ def initialize_database():
     try:
         with db_connection() as cursor:
             cursor.execute(users_table_query)
-            logging.DEBUG("Таблица users успешно создана или уже существует.")
+            logging.debug("Таблица users успешно создана или уже существует.")
     except Exception as e:
-        logging.ERROR(f"Ошибка при создании таблицы: {e}")
+        logging.error(f"Ошибка при создании таблицы: {e}")

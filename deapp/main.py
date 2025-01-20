@@ -10,6 +10,8 @@ from bot import start, stop, change_timeframe, timeframe_callback
 from analyze_market import analyze_market
 import time
 from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
+from sql.connection import initialize_database, initialize_connection_pool
+import asyncio
 
 init_connection("bybit")
 setup_logging()
@@ -26,7 +28,7 @@ def start_analyze():
 
             # Analyze the market for each subscribed user
             for user_id in subscribed_users:
-                analyze_market(user_id, tg_get_user_timeframe(user_id))
+                asyncio.run(analyze_market(user_id, tg_get_user_timeframe(user_id)))
 
             # Wait for the specified interval before the next analysis
             logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
@@ -55,6 +57,8 @@ def run_bot():
 
 def main():
     logging.info("Setting up...")
+    initialize_connection_pool()
+    initialize_database()
 
     analyze_thread = threading.Thread(target=start_analyze, daemon=True)
     analyze_thread.start()

@@ -38,15 +38,15 @@ async def analyze_market(user_id, timeframe,
             logging.info(strategy.name[0] + f", signal: \"{signal}\"")
             logging.info(f"Analyze took: {(datetime.now() - start)}")
 
-            if signal and signal != "no_signal":
-                message = {
-                    "exchange": exchange.id,
-                    "symbol": symbol,
-                    "strategy": strategy.name,
-                    "timeframe": timeframe,
-                    "signal": signal,
-                }
-                await bot.send_message(chat_id=user_id, text=message)
+            #if signal and signal != "no_signal":
+            message = {
+                "exchange": exchange.id,
+                "symbol": symbol,
+                "strategy": strategy.name,
+                "timeframe": timeframe,
+                "signal": signal,
+            }
+            await bot.send_message(chat_id=user_id, text=message)
 
         except Exception as e:
             logging.error(f"Ошибка обработки символа: {symbol}: {e}")
