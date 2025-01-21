@@ -1,7 +1,6 @@
 import logging
 from loger_setup import setup_logging
 import asyncio
-import time
 from aiogram import Bot, Dispatcher
 from bot import router
 from constants import DEFAULT_ANALYZE_INTERVAL
@@ -34,14 +33,14 @@ async def start_analyze():
                 tasks.append(task)
 
             # Дожидаемся завершения всех задач
-            await asyncio.gather(*tasks)
+            await asyncio.gather(*tasks, return_exceptions=True)
 
             # Wait for the specified interval before the next analysis
             logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
-            time.sleep(DEFAULT_ANALYZE_INTERVAL)
+            await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
         except Exception as e:
             logging.error(f"Error in market analysis: {e}")
-            time.sleep(10)  # Wait before retrying in case of an error
+            await asyncio.sleep(10)  # Wait before retrying in case of an error
 
 
 async def main():
@@ -51,16 +50,13 @@ async def main():
     initialize_database()
 
     dp.include_router(router)
-    await dp.start_polling(bot)
+    # await dp.start_polling(bot)
 
-   # await asyncio.gather(
-   #     # Ваша фоновая задача
-   #     dp.start_polling(bot), start_analyze()  # Поллинг бота
-   # )
+    await asyncio.gather(
+        # Ваша фоновая задача
+        dp.start_polling(bot), start_analyze(), return_exceptions=True  # Поллинг бота
+    )
 
 
 if __name__ == "__main__":
-    try:
         asyncio.run(main())
-    except KeyboardInterrupt:
-        print('End')

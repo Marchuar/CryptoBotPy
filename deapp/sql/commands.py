@@ -32,7 +32,8 @@ def tg_subscribe_user(user_id):
             with db_connection() as cursor:
                 cursor.execute("""
                     UPDATE users
-                    SET is_subscribed = TRUE
+                    SET is_subscribed = TRUE,
+                    exchange_timeframe = 1h
                     WHERE user_id = %s
             """, (user_id,))
         except Exception as e:
@@ -54,7 +55,6 @@ def tg_unsubscribe_user(user_id):
             cursor.execute("""
             UPDATE users
             SET is_subscribed = FALSE,
-            exchange_timeframe = NUll
             WHERE user_id = %s
         """, (user_id,))
     except Exception as e:
