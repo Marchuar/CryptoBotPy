@@ -1,56 +1,51 @@
-from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext, ContextTypes
-from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe, tg_get_user_timeframe
+from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe
+from aiogram import Router
+from aiogram.filters import CommandStart, Command
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
-#TODO добавить это в .env
-bot = Bot("***REMOVED_TG_TOKEN***")
+router = Router()
+available_timeframes = ['15m', '30m', '1h', '4h', '1d']
 
+timeframe_settings = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text=available_timeframes[0], callback_data='15m')],
+    [InlineKeyboardButton(text=available_timeframes[1], callback_data='30m')],
+    [InlineKeyboardButton(text=available_timeframes[2], callback_data='1h')],
+    [InlineKeyboardButton(text=available_timeframes[3], callback_data='4h')],
+    [InlineKeyboardButton(text=available_timeframes[4], callback_data='1d')]
+])
 
-async def start(update: Update, context: CallbackContext):
-    user_id = update.effective_chat.id
+@router.message(CommandStart())
+async def cmd_start(message: Message):
+    await start(message)
+
+@router.message(Command('stop'))
+async def cmd_stop(message: Message):
+    await stop(message)
+
+@router.message(Command('timeframe'))
+async def change_timeframe(message: Message):
+    await message.answer("Choose timeframe:", reply_markup=timeframe_settings)
+
+@router.callback_query(lambda c: c.data in available_timeframes)
+async def process_timeframe_callback(callback_query: CallbackQuery):
+    user_id = callback_query.from_user.id
+    selected_timeframe = callback_query.data
+
+    tg_update_user_timeframe(user_id, selected_timeframe)
+    await callback_query.message.answer("Saved")
+
+async def start(message: Message):
+    user_id = message.from_user.id
     if tg_is_user_subscribed(user_id):
-        await update.message.reply_text("Вы уже подписаны на рассылку")
+        await message.answer("Вы уже подписаны на рассылку")
     else:
         tg_subscribe_user(user_id)
-        await update.message.reply_text("Вы подписались на рассылку")
+        await message.answer("Вы подписались на рассылку")
 
-async def change_timeframe(update: Update, context: CallbackContext):
-    # добавить возможность изменять timeframe у каждого user отдельно
-    # user_id = update.effective_chat.id
-
-    # Создаём кнопки для тг
-    keyboard = [
-            [
-                InlineKeyboardButton("5 минут", callback_data="5m"),
-                InlineKeyboardButton("15 минут", callback_data="15m"),
-                InlineKeyboardButton("30 минут", callback_data="30m"),
-            ],
-            [
-                InlineKeyboardButton("1 час", callback_data="1h"),
-                InlineKeyboardButton("4 часа", callback_data="4h"),
-                InlineKeyboardButton("1 день", callback_data="1d"),
-            ],
-        ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Отправляем сообщение с кнопками
-    await update.message.reply_text("Выберите таймфрейм:", reply_markup=reply_markup)
-
-async def timeframe_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    query = update.callback_query
-    await query.answer()  # Обязательно вызываем, чтобы убрать "крутящийся кружок"
-
-    # Извлекаем значение таймфрейма
-    user_id = update.effective_chat.id
-    tg_update_user_timeframe(user_id, query.data)
-
-    # Отвечаем пользователю
-    await query.edit_message_text(f"Вы выбрали таймфрейм: {tg_get_user_timeframe(user_id)}")
-
-async def stop(update: Update, context: CallbackContext):
-    user_id = update.effective_chat.id
+async def stop(message: Message):
+    user_id = message.from_user.id
     if tg_is_user_subscribed(user_id):
         tg_unsubscribe_user(user_id)
-        await update.message.reply_text("Вы отписались от рассылки")
+        await message.answer("Вы отписались от рассылки")
     else:
-        await update.message.reply_text("Вы ещё не получаете рассылки")
+        await message.answer("Вы ещё не получаете рассылки")
