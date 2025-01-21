@@ -49,6 +49,3 @@ async def stop(message: Message):
         await message.answer("Вы отписались от рассылки")
     else:
         await message.answer("Вы ещё не получаете рассылки")
-
-async def send_signal(message):
-    await router.

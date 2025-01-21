@@ -29,7 +29,7 @@ async def start_analyze():
             tasks = []
             for user_id in subscribed_users:
                 task = asyncio.create_task(
-                    analyze_market(user_id, tg_get_user_timeframe(user_id))
+                    analyze_market(user_id, tg_get_user_timeframe(user_id), bot)
                 )
                 tasks.append(task)
 
@@ -51,11 +51,12 @@ async def main():
     initialize_database()
 
     dp.include_router(router)
+    await dp.start_polling(bot)
 
-    await asyncio.gather(
-        start_analyze(),  # Ваша фоновая задача
-        dp.start_polling(bot)  # Поллинг бота
-    )
+   # await asyncio.gather(
+   #     # Ваша фоновая задача
+   #     dp.start_polling(bot), start_analyze()  # Поллинг бота
+   # )
 
 
 if __name__ == "__main__":
