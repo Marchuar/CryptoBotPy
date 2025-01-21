@@ -26,9 +26,7 @@ async def start_analyze():
             subscribed_users = db_get_subscribed_users()
 
             tasks = []
-            if subscribed_users is None:
-                logging.info("Нету подписок, анализ скипается")
-            else:
+            if subscribed_users:
                 for user_id in subscribed_users:
                     task = asyncio.create_task(
                         analyze_market(user_id, tg_get_user_timeframe(user_id), bot)
@@ -40,6 +38,9 @@ async def start_analyze():
 
                 # Wait for the specified interval before the next analysis
                 logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
+                await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
+            else:
+                logging.info("No subs, skip analyze")
                 await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
         except Exception as e:
             logging.error(f"Error in market analysis: {e}")
