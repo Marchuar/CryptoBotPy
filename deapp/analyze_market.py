@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime
-from main import bot
 from connect import get_connection
 from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
 from market_filter.filter_for_strategy import filter_symbols_for_strategy
@@ -9,7 +8,7 @@ from strategies.universal import UniversalStrategy
 import pandas as pd
 
 
-async def analyze_market(user_id, timeframe,
+async def analyze_market(user_id, timeframe, bot,
                          strategy=UniversalStrategy(),
                          exchange=get_connection("bybit"),
                          symbols=DEFAULT_ANALYZE_SYMBOLS,
