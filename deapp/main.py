@@ -1,14 +1,14 @@
-from constants import DEFAULT_ANALYZE_INTERVAL
-from loger_setup import setup_logging
-from connect import init_connection
 import logging
-from analyze_market import analyze_market
-import time
-from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
-from sql.connection import initialize_database, initialize_connection_pool
+from loger_setup import setup_logging
 import asyncio
+import time
 from aiogram import Bot, Dispatcher
 from bot import router
+from constants import DEFAULT_ANALYZE_INTERVAL
+from connect import init_connection
+from analyze_market import analyze_market
+from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
+from sql.connection import initialize_database, initialize_connection_pool
 
 init_connection("bybit")
 setup_logging()
