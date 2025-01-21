@@ -1,21 +1,18 @@
-import logging
-
 from telegram import Update, Bot, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext, ContextTypes
-import config
+from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe, tg_get_user_timeframe
 
+#TODO добавить это в .env
 bot = Bot("7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c")
-user_ids = []
 
 
 async def start(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids:
+    if tg_is_user_subscribed(user_id):
         await update.message.reply_text("Вы уже подписаны на рассылку")
     else:
-        user_ids.append(user_id)
+        tg_subscribe_user(user_id)
         await update.message.reply_text("Вы подписались на рассылку")
-        logging.info(user_id)
 
 async def change_timeframe(update: Update, context: CallbackContext):
     # добавить возможность изменять timeframe у каждого user отдельно
@@ -44,19 +41,16 @@ async def timeframe_callback(update: Update, context: ContextTypes.DEFAULT_TYPE)
     await query.answer()  # Обязательно вызываем, чтобы убрать "крутящийся кружок"
 
     # Извлекаем значение таймфрейма
-    selected_timeframe = query.data
-
-    # Изменяем timeframe
-    config.TIMEFRAME = selected_timeframe
+    user_id = update.effective_chat.id
+    tg_update_user_timeframe(user_id, query.data)
 
     # Отвечаем пользователю
-    await query.edit_message_text(f"Вы выбрали таймфрейм: {selected_timeframe}")
+    await query.edit_message_text(f"Вы выбрали таймфрейм: {tg_get_user_timeframe(user_id)}")
 
 async def stop(update: Update, context: CallbackContext):
     user_id = update.effective_chat.id
-    if user_id in user_ids:
-        user_ids.remove(user_id)
-        logging.info(user_id)
+    if tg_is_user_subscribed(user_id):
+        tg_unsubscribe_user(user_id)
         await update.message.reply_text("Вы отписались от рассылки")
     else:
         await update.message.reply_text("Вы ещё не получаете рассылки")
