@@ -66,7 +66,7 @@ def tg_update_user_timeframe(user_id, timeframe):
         with db_connection() as cursor:
             cursor.execute("""
                 UPDATE users
-                SET exchange_timeframe = %s
+                SET exchange_timeframe = '%s'
                 WHERE user_id = %s
             """, (timeframe, user_id))
     except Exception as e:
