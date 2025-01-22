@@ -33,7 +33,7 @@ def tg_subscribe_user(user_id):
                 cursor.execute("""
                     UPDATE users
                     SET is_subscribed = TRUE,
-                    exchange_timeframe = 1h
+                    exchange_timeframe = '1h'
                     WHERE user_id = %s
             """, (user_id,))
         except Exception as e:
