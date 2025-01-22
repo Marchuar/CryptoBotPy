@@ -1,3 +1,4 @@
+TA-Lib
 ccxt
 telegram
 python-telegram-bot
