@@ -27,11 +27,11 @@ def fetch_history_data_from_exchange(
         all_data.extend(ohlcv)
 
         if len(ohlcv) <= 1:
-            logging.info("Данные закончились, все свечи выгружены")
+            logging.info("Data is out, all candles are loaded")
             break
         since = ohlcv[-1][0] + 1
 
-        logging.info(f"Загружено {len(ohlcv)} свечей, всего: {len(all_data)}")
+        logging.info(f"Downloaded {len(ohlcv)} candles, total: {len(all_data)}")
 
     # Преобразование в DataFrame
     df = pd.DataFrame(

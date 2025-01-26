@@ -9,9 +9,9 @@ def test_from_csv(
         strategy=EMAStrategy(),
         file_path="/..."
 ):
-    logging.info("Загружаем данные из CSV")
+    logging.info("Downloading data from CSV")
     data = load_data_from_csv(file_path)
     result = run_testing(strategy, data)
 
-    assert result is not None, "Завершено без результатов"
-    logging.info("Тест завершен, йоу")
+    assert result is not None, "Completed without results"
+    logging.info("Test completed")

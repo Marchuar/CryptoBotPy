@@ -1,5 +1,6 @@
 import talib
 
+import logging
 from constants import DEFAULT_SAR_ACCELERATION, DEFAULT_SAR_MAXIMUM
 
 
@@ -15,7 +16,7 @@ class ParabolicSARIndicator:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        print(f"Generate signal for {self.name} strategy")
+        logging.info(f"Generate signal for {self.name} strategy")
 
         parabolic_sar = df["parabolic_sar"].iloc[-1]
         curr_price = df["close"].iloc[-1]
@@ -29,8 +30,8 @@ class ParabolicSARIndicator:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
-        print("....")
-        print(f"Calculate indicators for {self.name} strategy")
+        logging.info("....")
+        logging.info(f"Calculate indicators for {self.name} strategy")
 
         # Вычисление Parabolic SAR
         df["parabolic_sar"] = talib.SAR(

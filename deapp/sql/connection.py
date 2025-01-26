@@ -1,14 +1,21 @@
+import os
+
 import psycopg2
 from psycopg2 import pool
 import logging
 from contextlib import contextmanager
 
-# TODO Убрать в конфиг, создать постоянный файл .env на серваке
-DB_HOST = "dpg-cu77eedsvqrc7396mu1g-a.frankfurt-postgres.render.com"
-DB_NAME = "dedb"
-DB_PASSWORD = "mvDRhRJFojBzDP7dhQshPqkgT7hPpune"
-DB_USERNAME = "root"
-DB_PORT = "5432"
+# imports for .env
+from dotenv import load_dotenv
+
+# load variables from .env
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PORT = os.getenv("DB_PORT")
 connection_pool = None
 
 
@@ -71,6 +78,6 @@ def initialize_database():
     try:
         with db_connection() as cursor:
             cursor.execute(users_table_query)
-            logging.debug("Таблица users успешно создана или уже существует.")
+            logging.info("The users table was successfully created or already exists.")
     except Exception as e:
-        logging.error(f"Ошибка при создании таблицы: {e}")
+        logging.error(f"Error when creating a table: {e}")

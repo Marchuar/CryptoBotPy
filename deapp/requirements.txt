@@ -7,3 +7,4 @@ pytest
 psycopg2-binary
 pandas
 numpy
+python-dotenv
