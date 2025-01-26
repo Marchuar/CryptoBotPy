@@ -30,7 +30,7 @@ class CVDIndicator:
             return "no_signal"
 
     def calculate_indicators(self, df):
-        logging.info(f"Расчет {self.name} стратегии")
+        logging.info(f"Calculation {self.name} strategy")
 
         if "CVD" not in df.columns:
             # Рассчитываем дельту объема для каждой свечи
