@@ -4,8 +4,8 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 
 router = Router()
-available_timeframes = ['15m', '30m', '1h', '4h', '1d']
 
+available_timeframes = ['15m', '30m', '1h', '4h', '1d']
 timeframe_settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text=available_timeframes[0], callback_data='15m')],
     [InlineKeyboardButton(text=available_timeframes[1], callback_data='30m')],
