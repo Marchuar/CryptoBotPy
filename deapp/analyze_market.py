@@ -23,10 +23,8 @@ async def start_analyze(bot, exchange, lock):
                     )
                     tasks.append(task)
 
-                # Дожидаемся завершения всех задач
                 await asyncio.gather(*tasks, return_exceptions=True)
 
-                # Wait for the specified interval before the next analysis
                 logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
                 await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
             else:
@@ -40,17 +38,11 @@ async def start_analyze(bot, exchange, lock):
 async def analyze_market(user_id, timeframe, bot, exchange, lock,
                          strategy=UniversalStrategy(),
                          all_symbols_mode=DEFAULT_ANALYZE_ALL_SYMBOLS_MODE):
-
-    # Достаем все символы и фильтруем их, если режим включен
     if all_symbols_mode:
         async with lock:
             filtered_symbols = markets
     else:
         filtered_symbols = DEFAULT_ANALYZE_SYMBOLS
-
-
-    #symbols = get_perpetual(exchange)
-    #symbols = filter_symbols_for_strategy(exchange, symbols, timeframe, strategy.candles_amount)
 
     for symbol in filtered_symbols:
         try:
