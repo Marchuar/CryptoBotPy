@@ -1,7 +1,8 @@
 import logging
 import sys
 
-from exchange_market.symbols_fetcher import markets_loader
+from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE
+from exchange_market.symbols_fetcher import markets_loader, MarketState
 from loger_setup import setup_logging
 import asyncio
 from aiogram import Bot, Dispatcher
@@ -26,10 +27,12 @@ async def main():
 
     dp.include_router(router)
 
+    state = MarketState()
+
     await asyncio.gather(
         dp.start_polling(bot),
-        start_analyze(bot, exchange, lock),
-        markets_loader(exchange, lock),
+        markets_loader(exchange, DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, state),
+        start_analyze(bot, exchange, state),
         return_exceptions=True
     )
 
