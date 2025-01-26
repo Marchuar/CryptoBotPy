@@ -15,7 +15,7 @@ def init_connection(exchange_name):
         try:
             connections[exchange_name] = exchanges[exchange_name]
         except Exception as e:
-            logging.error(f"Ошибка соединения с биржей {exchange_name}: {e}")
+            logging.error(f"Exchange connection error {exchange_name}: {e}")
             raise
 
 
@@ -26,5 +26,5 @@ def get_connection(exchange_name):
         try:
             init_connection(exchange_name)
         except Exception as e:
-            logging.error(f"Ошибка соединения с биржей: {e}")
+            logging.error(f"Exchange connection error: {e}")
     return connections[exchange_name]
