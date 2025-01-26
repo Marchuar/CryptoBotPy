@@ -38,7 +38,7 @@ async def start_analyze():
             if subscribed_users:
                 for user_id in subscribed_users:
                     task = asyncio.create_task(
-                        analyze_market(user_id, tg_get_user_timeframe(user_id), bot)
+                        analyze_market(user_id, tg_get_user_timeframe(user_id))
                     )
                     tasks.append(task)
 

@@ -8,9 +8,9 @@ def db_add_user(user_id):
             cursor.execute(
                 "INSERT INTO users (user_id) VALUES (%s) ON CONFLICT (user_id) DO NOTHING", (user_id,)
             )
-            logging.info(f"Новый пользователь успешно добавлен.")
+            logging.info(f"New user successfully added.")
     except Exception as e:
-        logging.error(f"Ошибка добавления пользователя {user_id}: {e}")
+        logging.error(f"Error adding a user {user_id}: {e}")
 
 
 def tg_is_user_subscribed(user_id):
@@ -37,7 +37,7 @@ def tg_subscribe_user(user_id):
                     WHERE user_id = %s
             """, (user_id,))
         except Exception as e:
-            logging.error(f"Ошибка при попытке подписки на рассылку, user_id: {user_id}: {e}")
+            logging.error(f"Error when trying to subscribe to the alerting, user_id: {user_id}: {e}")
     else:
         try:
             with db_connection() as cursor:
@@ -46,7 +46,7 @@ def tg_subscribe_user(user_id):
                             VALUES (%s, TRUE)
                         """, (user_id,))
         except Exception as e:
-            logging.error(f"Ошибка при попытке создания юзера + подписки на рассылку, user_id: {user_id}: {e}")
+            logging.error(f"Error when trying to create a user + subscription to the alerting, user_id: {user_id}: {e}")
 
 
 def tg_unsubscribe_user(user_id):
@@ -58,7 +58,7 @@ def tg_unsubscribe_user(user_id):
             WHERE user_id = %s
         """, (user_id,))
     except Exception as e:
-        logging.error(f"Ошибка при попытке отписки на рассылку, user_id: {user_id}: {e}")
+        logging.error(f"Error when trying to unsubscribe from the alerting, user_id: {user_id}: {e}")
 
 
 def tg_update_user_timeframe(user_id, timeframe):
@@ -70,7 +70,7 @@ def tg_update_user_timeframe(user_id, timeframe):
                 WHERE user_id = %s
             """, (timeframe, user_id))
     except Exception as e:
-        logging.error(f"Ошибка при попытке отписки на рассылку, user_id: {user_id}: {e}")
+        logging.error(f"Error when trying to unsubscribe from the alerting, user_id: {user_id}: {e}")
 
 
 def tg_get_user_timeframe(user_id):

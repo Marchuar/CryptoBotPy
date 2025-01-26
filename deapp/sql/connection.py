@@ -78,6 +78,6 @@ def initialize_database():
     try:
         with db_connection() as cursor:
             cursor.execute(users_table_query)
-            logging.debug("Таблица users успешно создана или уже существует.")
+            logging.info("The users table was successfully created or already exists.")
     except Exception as e:
-        logging.error(f"Ошибка при создании таблицы: {e}")
+        logging.error(f"Error when creating a table: {e}")

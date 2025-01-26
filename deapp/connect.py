@@ -16,7 +16,7 @@ def init_connection(exchange_name):
         try:
             connections[exchange_name] = exchanges[exchange_name]
         except Exception as e:
-            logging.error(f"Ошибка соединения с биржей {exchange_name}: {e}")
+            logging.error(f"Exchange connection error {exchange_name}: {e}")
             raise
 
     # Выгружаем рынки из биржи
@@ -24,10 +24,10 @@ def init_connection(exchange_name):
         try:
             markets_cache[exchange_name] = connections[exchange_name].load_markets()
         except ccxt.NetworkError as e:
-            logging.error(f"Ошибка сети при выгрузке данных с биржи {exchange_name}: {e}")
+            logging.error(f"Network error when uploading data from the exchange {exchange_name}: {e}")
             raise
         except ccxt.BaseError as e:
-            logging.error(f"Ошибка биржи при выгрузке данных {exchange_name}: {e}")
+            logging.error(f"Exchange error when uploading data {exchange_name}: {e}")
             raise
 
     return connections[exchange_name]
@@ -40,7 +40,7 @@ def get_connection(exchange_name):
         try:
             init_connection(exchange_name)
         except Exception as e:
-            logging.error(f"Ошибка соединения с биржей: {e}")
+            logging.error(f"Exchange connection error: {e}")
     return connections[exchange_name]
 
 
