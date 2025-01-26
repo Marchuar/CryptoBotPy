@@ -1,3 +1,5 @@
+import logging
+
 from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndicator, ADXIndicator, EMAIndicator, \
     ATRIndicator, CVDIndicator
 from strategies.indicators.cci import CCIIndicator
@@ -39,11 +41,11 @@ class UniversalStrategy:
         #     return "no_signal"
 
         if 0 <= cci <= 15 or 0 >= cci >= -15:
-            print(f">>>> CCI: {cci} - не торгуем")
+            logging.info(f">>>> CCI: {cci} - not trading")
             return "no_signal"
 
         if 43 <= rsi <= 57 and adx <= 27:
-            print(f">>>> RSI: {rsi}, ADX: {adx} - не торгуем")
+            logging.info(f">>>> RSI: {rsi}, ADX: {adx} - not trading")
             return "no_signal"
         else:
             if macd_hist > macd_hist_prev:
@@ -57,7 +59,7 @@ class UniversalStrategy:
         if trend == "sell":
             score = -score
 
-        print(f"Расчитан базовый скор: {score}")
+        logging.info(f"Calculated base score: {score}")
         return score
 
     def generate_signal(self, df):
@@ -118,36 +120,36 @@ class UniversalStrategy:
             # 1.Пересечение
             if curr_ema_diff * prev_ema_diff <= 0:
                 ema_multiplier = 1.4
-                print("EMA: Пересечение EMA")
+                logging.info("EMA: Crossing EMA")
             # 2.Сужение
             elif abs(prev_ema_diff) > abs(curr_ema_diff):
                 # Стремительное (надо подобрать хорошее значение)
                 if abs(prev_ema_diff) - abs(curr_ema_diff) > diff_factor:
                     ema_multiplier = 1.4
-                    print("EMA: Стремительное сужение")
+                    logging.info("EMA: Стремительное сужение")
                 # Не стремительное
                 else:
                     ema_multiplier = 1.2
-                    print("EMA: Обычное сужение")
+                    logging.info("EMA: Обычное сужение")
             # 3. Расширение
             elif abs(curr_ema_diff) > abs(prev_ema_diff):
                 # Стремительное (надо подобрать хорошее значение)
                 if abs(curr_ema_diff) - abs(prev_ema_diff) > diff_factor:
                     ema_multiplier = 1.3
-                    print("EMA: Стремительное расширение")
+                    logging.info("EMA: Стремительное расширение")
                 # Не стремительное
                 else:
                     ema_multiplier = 1.1
-                    print("EMA: Обычное расширение")
+                    logging.info("EMA: Обычное расширение")
         # Не соответствует значению границы разницы EMA
         else:
             ema_multiplier = 1.0
-            print("EMA: Не входит в границы")
+            logging.info("EMA: Не входит в границы")
 
         # Score after EMA
         score = score * ema_multiplier
 
-        print(f"EMA short: {curr_ema_short}, EMA long: {curr_ema_long}, Score after EMA: {score}")
+        logging.info(f"EMA short: {curr_ema_short}, EMA long: {curr_ema_long}, Score after EMA: {score}")
         return score
 
     # MACD v2
@@ -183,25 +185,25 @@ class UniversalStrategy:
 
         # Логика пересечения
         if normalized_macd_hist * normalized_macd_hist_prev <= 0:
-            print("Пересечение MACD и Specsignal")
+            logging.info("Пересечение MACD и Specsignal")
             score *= macd_cross_multiplier
         # Логика сужения
         elif abs(normalized_macd_hist) < macd_narrow_threshold < abs(normalized_macd_hist_prev) and abs(
                 normalized_macd_hist) < abs(normalized_macd_hist_prev):
-            print("MACD и Specsignal сужаются в пределах диапозона")
+            logging.info("MACD и Specsignal сужаются в пределах диапозона")
             score *= macd_narrow_multiplier
         # Логика расширения
         elif abs(normalized_macd_hist) > macd_extension_threshold > abs(normalized_macd_hist_prev) and abs(
                 normalized_macd_hist) > abs(normalized_macd_hist_prev):
-            print("MACD и Specsignal расширяются в пределах диапозона")
+            logging.info("MACD и Specsignal расширяются в пределах диапозона")
             score *= macd_extension_multiplier
 
         # Логика сильного изменения
         if hist_change >= strong_movement_threshold:
-            print("Сильное изменение гистограммы MACD")
+            logging.info("Сильное изменение гистограммы MACD")
             score *= strong_movement_multiplier
 
-        print(f"Score after MACD: {score}, "
+        logging.info(f"Score after MACD: {score}, "
               f"MACD: {macd}, Specsignal: {specsignal}, "
               f"MACD hist: {normalized_macd_hist}, MACD prev hist: {normalized_macd_hist_prev}, "
               f"Hist change: {hist_change}%"
@@ -215,7 +217,7 @@ class UniversalStrategy:
 
         if adx > self.adx.adx_threshold:
             score *= adx_multiplier
-        print(f"Score after ADX: {score}, ADX: {adx}")
+        logging.info(f"Score after ADX: {score}, ADX: {adx}")
         return score
 
     def evaluate_cvd(self, df, close, close_prev):
@@ -224,11 +226,11 @@ class UniversalStrategy:
 
         # Проверка на дивергенции
         if close > close_prev and cvd < cvd_prev:
-            print("Short: проверка CVD")
+            logging.info("Short: проверка CVD")
         elif close < close_prev and cvd > cvd_prev:
-            print("Long: проверка CVD")
+            logging.info("Long: проверка CVD")
         else:
-            print("Nothing: проверка CVD")
+            logging.info("Nothing: проверка CVD")
 
     # RSI
     def evaluate_rsi(self, df, score):
@@ -246,7 +248,7 @@ class UniversalStrategy:
             rsi_40_60_multiplier = 0.9
 
         score = score * rsi_30_70_multiplier * rsi_40_60_multiplier
-        print(
+        logging.info(
             f"Score after rsi: {score}, "
             f"RSI: {rsi}, RSI multiplier 30_70: {rsi_30_70_multiplier}, "
             f"RSI multiplier 40_60: {rsi_40_60_multiplier}")
@@ -276,7 +278,7 @@ class UniversalStrategy:
                 # Возможный разворот
                 score *= sar_multiplier_negative
 
-        print(f"Score after SAR: {score}, Parabolic Sar: {parabolic_sar}")
+        logging.info(f"Score after SAR: {score}, Parabolic Sar: {parabolic_sar}")
         return score
 
     def evaluate_cci(self, df, score, trend):
@@ -291,12 +293,12 @@ class UniversalStrategy:
         else:
             score *= 1.0 # Оставляем как было
 
-        print(f"Score after CCI: {score}, CCI: {curr_cci}")
+        logging.info(f"Score after CCI: {score}, CCI: {curr_cci}")
         return score
 
     def calculate_signal_score(self, df, trend, atr, close, close_prev):
-        print("--------------Начало расчета скора--------------")
-        print(f"Timestamp: {df['timestamp'].iloc[-1]}")
+        logging.info("--------------Calculating the score--------------")
+        logging.info(f"Timestamp: {df['timestamp'].iloc[-1]}")
 
         score = self.basic_score(trend)
 
@@ -309,8 +311,8 @@ class UniversalStrategy:
         score = self.evaluate_cci(df, score, trend)
 
         df.loc[df.index[-1], "score"] = score
-        print(f"General score: {score}")
-        print("***************Конец расчета скора***************")
+        logging.info(f"General score: {score}")
+        logging.info("***************The end of the score calculation***************")
         return score
 
     def calculate_indicators(self, df):
