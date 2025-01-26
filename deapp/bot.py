@@ -1,7 +1,13 @@
+import os
+import json
+
 from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+bot = Bot(token=BOT_TOKEN)
 
 router = Router()
 available_timeframes = ['15m', '30m', '1h', '4h', '1d']
@@ -33,6 +39,20 @@ async def process_timeframe_callback(callback_query: CallbackQuery):
 
     tg_update_user_timeframe(user_id, selected_timeframe)
     await callback_query.message.answer("Saved")
+
+async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, signal):
+    signal_message = (
+        "✨ <b>Новый сигнал</b> ✨\n\n"
+        f"🌐 Биржа: <b>{exchange}</b>\n"
+        f"💱 Пара: <b>{symbol}</b>\n"
+        f"📈 Стратегия: <b>{', '.join(strategy)}</b>\n"
+        f"⏰ Таймфрейм: <b>{timeframe}</b>\n"
+        f"📢 Сигнал: <b>{signal}</b>\n"
+    )
+
+    await bot.send_message(chat_id=user_id, text=signal_message, parse_mode="HTML")
+
+
 
 async def start(message: Message):
     user_id = message.from_user.id

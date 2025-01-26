@@ -14,11 +14,11 @@ def test_from_exchange(
         timeframe="1h",
         since="2024-11-15T00:00:00Z"
 ):
-    logging.info("Загружаем исторические данные из биржи")
+    logging.info("Downloading historical data from the stock exchange")
     data = fetch_history_data_from_exchange(exchange, symbol, timeframe, since)
 
-    logging.info("Запуск бэктестинга...")
+    logging.info("Start backtesting...")
     result = run_testing(strategy, data)
 
-    assert result is not None, "Завершено без результатов"
-    logging.info("Тест завершен, йоу")
+    assert result is not None, "Completed without results"
+    logging.info("Test completed")
