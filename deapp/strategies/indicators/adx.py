@@ -1,4 +1,5 @@
 import talib
+import logging
 
 from constants import DEFAULT_ADX_PERIOD, DEFAULT_ADX_THRESHHOLD
 
@@ -15,7 +16,7 @@ class ADXIndicator:
         if len(df) < self.candles_amount:
             return "not_enough_candles"
 
-        print(f"Generate signal for {self.name} strategy")
+        logging.info(f"Generate signal for {self.name} strategy")
 
         adx = df["adx"].iloc[-1]
         curr_plus_di = df["+DI_adx"].iloc[-1]
@@ -27,10 +28,8 @@ class ADXIndicator:
         # Пока не используется в проверке
         if curr_plus_di > curr_minus_di and prev_plus_di <= prev_minus_di:
             signal = "long_cross"
-            print(signal)
         elif curr_minus_di > curr_plus_di and prev_minus_di <= prev_plus_di:
             signal = "short_cross"
-            print(signal)
 
         if adx > self.adx_threshold:  # Сильный тренд
             if curr_plus_di > curr_minus_di:  # Восходящий тренд
@@ -46,8 +45,8 @@ class ADXIndicator:
 
     def calculate_indicators(self, df):
         # Указываем индикаторы
-        print("....")
-        print(f"Calculate indicators for {self.name} strategy")
+        logging.info("....")
+        logging.info(f"Calculate indicators for {self.name} strategy")
 
         # Вычисление ADX, +DI и -DI
         df["adx"] = talib.ADX(df["high"], df["low"], df["close"], timeperiod=self.adx_period)
