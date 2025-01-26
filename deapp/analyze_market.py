@@ -42,8 +42,8 @@ async def analyze_market(user_id, timeframe,
             logging.info(f"Result: strategy {strategy.name[0]}, signal: {signal}")
             logging.info(f"Analysis time: {(datetime.now() - start)}")
 
-            #if signal and signal != "no_signal":
-            await send_signal_message(user_id, exchange.id, symbol, strategy.name, timeframe, signal)
+            if signal and signal != "no_signal":
+                await send_signal_message(user_id, exchange.id, symbol, strategy.name, timeframe, signal)
 
         except Exception as e:
             logging.error(f"Symbol processing error {symbol}: {e}")
