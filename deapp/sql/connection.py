@@ -1,14 +1,21 @@
+import os
+
 import psycopg2
 from psycopg2 import pool
 import logging
 from contextlib import contextmanager
 
-# TODO Убрать в конфиг, создать постоянный файл .env на серваке
-DB_HOST = "***REMOVED_DB_HOST***"
-DB_NAME = "dedb"
-DB_PASSWORD = "***REMOVED_DB_PASSWORD***"
-DB_USERNAME = "root"
-DB_PORT = "5432"
+# imports for .env
+from dotenv import load_dotenv
+
+# load variables from .env
+load_dotenv()
+
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PORT = os.getenv("DB_PORT")
 connection_pool = None
 
 

@@ -11,9 +11,16 @@ from analyze_market import analyze_market
 from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
 from sql.connection import initialize_database, initialize_connection_pool
 
+# imports for .env
+from dotenv import load_dotenv
+import os
+
+# load variables from .env
+load_dotenv()
+
 init_connection("bybit")
 setup_logging()
-BOT_TOKEN = "***REMOVED_TG_TOKEN***"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
