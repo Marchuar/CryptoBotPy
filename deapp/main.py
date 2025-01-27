@@ -1,5 +1,7 @@
 import logging
+import os
 import sys
+from dotenv import load_dotenv
 
 from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE
 from exchange_market.symbols_fetcher import markets_loader, MarketState
@@ -11,13 +13,15 @@ from connect import init_connection, get_connection
 from analyze_market import start_analyze
 from sql.connection import initialize_database, initialize_connection_pool
 
+load_dotenv()
 init_connection("bybit")
 exchange = get_connection("bybit")
 setup_logging()
-BOT_TOKEN = "7220502529:AAFNYqjEqtTPMYlBW0PoZkAa7WWD79mXJ1c"
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 lock = asyncio.Lock()
+
 
 async def main():
     logging.info("Setting up...")
