@@ -1,5 +1,4 @@
 import os
-import json
 
 from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe
 from aiogram import Router, Bot
