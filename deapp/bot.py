@@ -40,10 +40,12 @@ async def process_timeframe_callback(callback_query: CallbackQuery):
     await callback_query.message.answer("Saved")
 
 async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, signal):
+    cleaned_symbol = symbol.replace("/", "").replace(":USDT", "")
+
     signal_message = (
         "✨ <b>Новый сигнал</b> ✨\n\n"
         f"🌐 Биржа: <b>{exchange}</b>\n"
-        f"💱 Пара: <b>{symbol}</b>\n"
+        f"💱 Пара: <b>{cleaned_symbol}</b>\n"
         f"📈 Стратегия: <b>{', '.join(strategy)}</b>\n"
         f"⏰ Таймфрейм: <b>{timeframe}</b>\n"
         f"📢 Сигнал: <b>{signal}</b>\n"

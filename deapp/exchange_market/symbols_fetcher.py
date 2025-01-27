@@ -28,7 +28,7 @@ async def markets_loader(exchange, all_symbols_mode, state):
                 except Exception as e:
                     logging.error(f"Symbols loading error: {e}")
                 await clean_markets(exchange, state)
-            logging.info(f"Symbols loaded, refresh in {DEFAULT_SYMBOLS_REFRESH_INTERVAL / 60} mins")
+            logging.info(f"Symbols loaded, refresh in {DEFAULT_SYMBOLS_REFRESH_INTERVAL / 360} hours")
             await asyncio.sleep(DEFAULT_SYMBOLS_REFRESH_INTERVAL)
 
 
