@@ -42,13 +42,13 @@ async def clean_markets(exchange, state):
             del state.markets[symbol]
             continue
         else:
-            volume = await filter_by_volume(exchange, symbol)
+            volume = await extract_volume(exchange, symbol)
             if not volume or volume <= DEFAULT_VOLUME_LIMIT:
                 del state.markets[symbol]
     logging.debug(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
 
 
-async def filter_by_volume(exchange, symbol, timeframe='1h', hours=DEFAULT_VOLUME_HOURS):
+async def extract_volume(exchange, symbol, timeframe='1h', hours=DEFAULT_VOLUME_HOURS):
     try:
         # Загружаем OHLCV данные
         ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=hours)
