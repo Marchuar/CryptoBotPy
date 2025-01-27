@@ -32,29 +32,20 @@ async def markets_loader(exchange, all_symbols_mode, state):
 
 
 async def clean_markets(exchange, state):
-    updated_markets = {}
-
     for symbol, market in list(state.markets.items()):
-        # Преобразуем символ, удаляя "/" и ":USDT"
-        cleaned_symbol = symbol.replace("/", "").replace(":USDT", "")
-
-        # Проверяем условия для фильтрации
         if (
                 market["type"] != "swap"
-                or not cleaned_symbol.endswith("USDT")
-                or not market["contract"]
-                or not market["active"]
+                or not symbol.endswith("USDT")
+                or not market["contract"] == True  # Так и не понял правильно ли это
+                or not market["active"] == True
         ):
-            continue  # Пропускаем символ, если он не соответствует критериям
-
-        # Извлекаем объем для очищенного символа
-        volume = await extract_volume(exchange, cleaned_symbol)
-        if volume and volume > DEFAULT_VOLUME_LIMIT:
-            updated_markets[cleaned_symbol] = market  # Сохраняем символ с очищенным названием
-
-    # Обновляем состояние markets
-    state.markets = updated_markets
-    logging.info(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
+            del state.markets[symbol]
+            continue
+        else:
+            volume = await extract_volume(exchange, symbol)
+            if not volume or volume <= DEFAULT_VOLUME_LIMIT:
+                del state.markets[symbol]
+    logging.debug(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
 
 
 async def extract_volume(exchange, symbol, timeframe='1h', hours=DEFAULT_VOLUME_HOURS):
