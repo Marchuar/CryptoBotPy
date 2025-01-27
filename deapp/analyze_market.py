@@ -1,5 +1,4 @@
 import asyncio
-import json
 import logging
 from datetime import datetime
 
@@ -10,7 +9,7 @@ from strategies.universal import UniversalStrategy
 import pandas as pd
 
 
-async def start_analyze(bot, exchange, state):
+async def start_analyze(exchange, state):
     while True:
         try:
             logging.info("Starting market analysis...")
@@ -20,7 +19,7 @@ async def start_analyze(bot, exchange, state):
             if subscribed_users:
                 for user_id in subscribed_users:
                     task = asyncio.create_task(
-                        analyze_market(user_id, tg_get_user_timeframe(user_id), bot, exchange, state)
+                        analyze_market(user_id, tg_get_user_timeframe(user_id), exchange, state)
                     )
                     tasks.append(task)
 
@@ -36,33 +35,31 @@ async def start_analyze(bot, exchange, state):
             await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
 
 
-async def analyze_market(user_id, timeframe, bot, exchange, state,
+async def analyze_market(user_id, timeframe, exchange, state,
                          strategy=UniversalStrategy()):
+    filtered_symbols = list(state.markets.keys())
+    for symbol in filtered_symbols:
+        try:
+            start = datetime.now()
+            ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
 
-    #async with state.lock:
-        filtered_symbols = list(state.markets.keys())
-        for symbol in filtered_symbols:
-            try:
-                start = datetime.now()
-                ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
+            if not ohlcv or len(ohlcv) < strategy.candles_amount:
+                logging.warning(f"Not enough data for symbol {symbol}. Skip...")
+                continue
 
-                if not ohlcv or len(ohlcv) < strategy.candles_amount:
-                    logging.warning(f"Not enough data for symbol {symbol}. Skip...")
-                    continue
+            df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
+            if df.empty or df.shape[0] < strategy.candles_amount:
+                logging.warning(f"DataFrame is empty or there is not enough data for the symbol {symbol}. Skip...")
+                continue
 
-                df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
-                if df.empty or df.shape[0] < strategy.candles_amount:
-                    logging.warning(f"DataFrame is empty or there is not enough data for the symbol {symbol}. Skip...")
-                    continue
+            df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
 
-                df["timestamp"] = pd.to_datetime(df["timestamp"], unit="ms")
+            logging.info(f"Beginning analysis for the symbol: {symbol}")
+            signal = strategy.generate_signal(strategy.calculate_indicators(df))
 
-                logging.info(f"Beginning analysis for the symbol: {symbol}")
-                signal = strategy.generate_signal(strategy.calculate_indicators(df))
+            logging.info(f"Result: strategy  {strategy.name[0]}, signal: {signal}")
+            logging.info(f"Analysis time: {(datetime.now() - start)}")
+            await send_signal_message(user_id, exchange.id, symbol, strategy.name, timeframe, signal)
 
-                logging.info(f"Result: strategy  {strategy.name[0]}, signal: {signal}")
-                logging.info(f"Analysis time: {(datetime.now() - start)}")
-                await send_signal_message(user_id, exchange.id, symbol, strategy.name, timeframe, signal)
-
-            except Exception as e:
-                logging.error(f"Symbol processing error {symbol}: {e}")
+        except Exception as e:
+            logging.error(f"Symbol processing error {symbol}: {e}")
