@@ -38,8 +38,6 @@ async def clean_markets(exchange, state):
         # Преобразуем символ, удаляя "/" и ":USDT"
         cleaned_symbol = symbol.replace("/", "").replace(":USDT", "")
 
-        logging.info(market["quoteVolume"])
-
         # Проверяем условия для фильтрации
         if (
                 market["type"] != "swap"
