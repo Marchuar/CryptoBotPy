@@ -1,6 +1,7 @@
 import asyncio
 import logging
-from constants import DEFAULT_VOLUME_HOURS, DEFAULT_VOLUME_LIMIT, DEFAULT_ANALYZE_SYMBOLS, \
+
+from constants import DEFAULT_VOLUME_LIMIT, DEFAULT_ANALYZE_SYMBOLS, \
     DEFAULT_SYMBOLS_REFRESH_INTERVAL
 
 
@@ -36,31 +37,23 @@ async def clean_markets(exchange, state):
         if (
                 market["type"] != "swap"
                 or not symbol.endswith("USDT")
-                or not market["contract"] == True  # Так и не понял правильно ли это
+                or not market["contract"] == True
                 or not market["active"] == True
         ):
             del state.markets[symbol]
-            continue
-        else:
-            volume = await extract_volume(exchange, symbol)
-            if not volume or volume <= DEFAULT_VOLUME_LIMIT:
-                del state.markets[symbol]
-    logging.debug(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
-
-
-async def extract_volume(exchange, symbol, timeframe='1h', hours=DEFAULT_VOLUME_HOURS):
     try:
-        # Загружаем OHLCV данные
-        ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=hours)
-        if not ohlcv:
-            logging.warn(f"Нет данных для символа {symbol}")
-            return None
-        elif len(ohlcv) < hours:
-            logging.warn(f"Недостаточно свечей для расчета обьема для символа {symbol}")
-            return None
-        else:
-            total_volume = sum([candle[hours - 1] for candle in ohlcv])
-            return total_volume
+        ticker = exchange.fetch_tickers()
+        for symbol in state.markets:
+            if not ticker:
+                break
+            for ticker_symbol in ticker:
+                if symbol == ticker_symbol:
+                    symbol_volume = ticker[ticker_symbol].get('quoteVolume', 0)
+                    if symbol_volume and symbol_volume <= DEFAULT_VOLUME_LIMIT:
+                        del state.markets[symbol]
+                        break
+                    del ticker[ticker_symbol]
+                    break
+        logging.info(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
     except Exception as e:
-        logging.error(f"Ошибка при фильтрации объёма: {e}")
-        return None
+        logging.error(f"Error during tickers fetch: {e}")
