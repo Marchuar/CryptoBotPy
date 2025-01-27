@@ -20,7 +20,6 @@ setup_logging()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
-lock = asyncio.Lock()
 
 
 async def main():
