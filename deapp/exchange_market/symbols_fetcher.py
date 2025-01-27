@@ -48,7 +48,7 @@ async def clean_markets(exchange, state):
             continue  # Пропускаем символ, если он не соответствует критериям
 
         # Извлекаем объем для очищенного символа
-        volume = await extract_volume(exchange, symbol)
+        volume = await extract_volume(exchange, cleaned_symbol)
         if volume and volume > DEFAULT_VOLUME_LIMIT:
             updated_markets[cleaned_symbol] = market  # Сохраняем символ с очищенным названием
 
