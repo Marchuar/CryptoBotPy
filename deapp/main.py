@@ -35,7 +35,7 @@ async def main():
     await asyncio.gather(
         dp.start_polling(bot),
         markets_loader(exchange, DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, state),
-        start_analyze(bot, exchange, state),
+        start_analyze(exchange, state),
         return_exceptions=True
     )
 
