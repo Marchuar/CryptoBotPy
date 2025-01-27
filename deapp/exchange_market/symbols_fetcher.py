@@ -43,17 +43,16 @@ async def clean_markets(exchange, state):
             del state.markets[symbol]
     try:
         ticker = exchange.fetch_tickers()
-        for symbol in state.markets:
+        markets_copy = state.markets.copy()
+        for symbol in markets_copy:
             if not ticker:
                 break
-            for ticker_symbol in ticker:
-                if symbol == ticker_symbol:
-                    symbol_volume = ticker[ticker_symbol].get('quoteVolume', 0)
-                    if symbol_volume and symbol_volume <= DEFAULT_VOLUME_LIMIT:
-                        del state.markets[symbol]
-                        break
-                    del ticker[ticker_symbol]
-                    break
+
+            ticker_symbol = ticker.get(symbol)
+            if ticker_symbol:
+                symbol_volume = ticker_symbol.get('quoteVolume', 0)
+                if symbol_volume and symbol_volume <= DEFAULT_VOLUME_LIMIT:
+                    del state.markets[symbol]
         logging.info(f"Symbols filter completed, total amount of symbols: {len(state.markets)}")
     except Exception as e:
         logging.error(f"Error during tickers fetch: {e}")
