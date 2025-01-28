@@ -1,3 +1,4 @@
+ta-lib-binary
 ccxt
 telegram
 python-telegram-bot
@@ -7,3 +8,4 @@ psycopg2-binary
 pandas
 numpy
 python-dotenv
+aiogram
