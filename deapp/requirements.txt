@@ -1,4 +1,4 @@
-ta-lib-binary
+ta-lib-binary==0.4.0
 ccxt
 telegram
 python-telegram-bot
