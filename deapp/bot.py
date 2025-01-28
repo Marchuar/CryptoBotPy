@@ -53,6 +53,17 @@ async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, si
 
     await bot.send_message(chat_id=user_id, text=signal_message, parse_mode="HTML")
 
+async def analyze_notify(user_id, race):
+    if race == 'start':
+        notify_message = (
+            "🛠 <b>Начало анализа рынка</b> 👷"
+        )
+    else:
+        notify_message = (
+            "💸 <b>Анализ рынка закончен</b> 💸"
+        )
+    await bot.send_message(chat_id=user_id, text=notify_message, parse_mode="HTML")
+
 
 
 async def start(message: Message):
