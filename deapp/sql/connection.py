@@ -4,11 +4,8 @@ import psycopg2
 from psycopg2 import pool
 import logging
 from contextlib import contextmanager
-
-# imports for .env
 from dotenv import load_dotenv
 
-# load variables from .env
 load_dotenv()
 
 DB_HOST = os.getenv("DB_HOST")

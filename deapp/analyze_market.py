@@ -1,32 +1,50 @@
+import asyncio
 import logging
 from datetime import datetime
 
-from connect import get_connection
-from constants import DEFAULT_ANALYZE_ALL_SYMBOLS_MODE, DEFAULT_ANALYZE_SYMBOLS
-from market_filter.filter_for_strategy import filter_symbols_for_strategy
-from market_filter.market_item_type import get_perpetual
+from bot import send_signal_message
+from constants import DEFAULT_ANALYZE_INTERVAL
+from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
 from strategies.universal import UniversalStrategy
 import pandas as pd
-from bot import send_signal_message
 
-async def analyze_market(user_id, timeframe,
-                         strategy=UniversalStrategy(),
-                         exchange=get_connection("bybit"),
-                         symbols=DEFAULT_ANALYZE_SYMBOLS,
-                         all_symbols_mode=DEFAULT_ANALYZE_ALL_SYMBOLS_MODE):
 
-    # Достаем все символы и фильтруем их, если режим включен
-    if all_symbols_mode:
-        symbols = get_perpetual(exchange)
-        symbols = filter_symbols_for_strategy(exchange, symbols, timeframe, strategy.candles_amount)
+async def start_analyze(exchange, state):
+    while True:
+        try:
+            logging.info("Starting market analysis...")
+            subscribed_users = db_get_subscribed_users()
 
-    for symbol in symbols:
+            tasks = []
+            if subscribed_users:
+                for user_id in subscribed_users:
+                    task = asyncio.create_task(
+                        analyze_market(user_id, tg_get_user_timeframe(user_id), exchange, state)
+                    )
+                    tasks.append(task)
+
+                await asyncio.gather(*tasks, return_exceptions=True)
+
+                logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
+                await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
+            else:
+                logging.info("No subs, skip analyze")
+                await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
+        except Exception as e:
+            logging.error(f"Error in market analysis: {e}")
+            await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
+
+
+async def analyze_market(user_id, timeframe, exchange, state,
+                         strategy=UniversalStrategy()):
+    filtered_symbols = list(state.markets.keys())
+    for symbol in filtered_symbols:
         try:
             start = datetime.now()
             ohlcv = exchange.fetch_ohlcv(symbol, timeframe=timeframe, limit=strategy.candles_amount)
 
             if not ohlcv or len(ohlcv) < strategy.candles_amount:
-                logging.warning(f"Not enough data for the symbol {symbol}. Skip...")
+                logging.warning(f"Not enough data for symbol {symbol}. Skip...")
                 continue
 
             df = pd.DataFrame(ohlcv, columns=["timestamp", "open", "high", "low", "close", "volume"])
@@ -39,7 +57,7 @@ async def analyze_market(user_id, timeframe,
             logging.info(f"Beginning analysis for the symbol: {symbol}")
             signal = strategy.generate_signal(strategy.calculate_indicators(df))
 
-            logging.info(f"Result: strategy {strategy.name[0]}, signal: {signal}")
+            logging.info(f"Result: strategy  {strategy.name[0]}, signal: {signal}")
             logging.info(f"Analysis time: {(datetime.now() - start)}")
 
             if signal and signal != "no_signal":

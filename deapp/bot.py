@@ -1,5 +1,4 @@
 import os
-import json
 
 from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe
 from aiogram import Router, Bot
@@ -10,8 +9,8 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 
 router = Router()
-available_timeframes = ['15m', '30m', '1h', '4h', '1d']
 
+available_timeframes = ['15m', '30m', '1h', '4h', '1d']
 timeframe_settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text=available_timeframes[0], callback_data='15m')],
     [InlineKeyboardButton(text=available_timeframes[1], callback_data='30m')],
@@ -41,10 +40,12 @@ async def process_timeframe_callback(callback_query: CallbackQuery):
     await callback_query.message.answer("Saved")
 
 async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, signal):
+    cleaned_symbol = symbol.replace("/", "").replace(":USDT", "")
+
     signal_message = (
         "✨ <b>Новый сигнал</b> ✨\n\n"
         f"🌐 Биржа: <b>{exchange}</b>\n"
-        f"💱 Пара: <b>{symbol}</b>\n"
+        f"💱 Пара: <b>{cleaned_symbol}</b>\n"
         f"📈 Стратегия: <b>{', '.join(strategy)}</b>\n"
         f"⏰ Таймфрейм: <b>{timeframe}</b>\n"
         f"📢 Сигнал: <b>{signal}</b>\n"
