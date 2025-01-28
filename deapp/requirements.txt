@@ -1,4 +1,3 @@
-ta-lib-binary
 ccxt
 telegram
 python-telegram-bot
