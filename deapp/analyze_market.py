@@ -2,7 +2,7 @@ import asyncio
 import logging
 from datetime import datetime
 
-from bot import send_signal_message
+from bot import send_signal_message, analyze_notify
 from constants import DEFAULT_ANALYZE_INTERVAL
 from sql.commands import db_get_subscribed_users, tg_get_user_timeframe
 from strategies.universal import UniversalStrategy
@@ -18,14 +18,16 @@ async def start_analyze(exchange, state):
             tasks = []
             if subscribed_users:
                 for user_id in subscribed_users:
+                    await analyze_notify(user_id, "start")
                     task = asyncio.create_task(
                         analyze_market(user_id, tg_get_user_timeframe(user_id), exchange, state)
                     )
                     tasks.append(task)
-
                 await asyncio.gather(*tasks, return_exceptions=True)
 
                 logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
+                for user_id in subscribed_users:
+                    await analyze_notify(user_id, "stop")
                 await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
             else:
                 logging.info("No subs, skip analyze")
