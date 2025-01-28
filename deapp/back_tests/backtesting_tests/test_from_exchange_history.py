@@ -3,7 +3,6 @@ import logging
 from back_tests.executor.backtesting import run_testing
 from back_tests.executor.test_data_generator import fetch_history_data_from_exchange
 from connect import get_connection
-from strategies.indicators.cci import CCIIndicator
 from strategies.universal import UniversalStrategy
 
 
