@@ -27,7 +27,7 @@ async def start_analyze(exchange, state):
 
                 logging.info(f"Market analysis completed. Waiting for {DEFAULT_ANALYZE_INTERVAL} seconds...")
                 for user_id in subscribed_users:
-                    await analyze_notify(user_id, "stop")
+                    await analyze_notify(user_id, "finish")
                 await asyncio.sleep(DEFAULT_ANALYZE_INTERVAL)
             else:
                 logging.info("No subs, skip analyze")
