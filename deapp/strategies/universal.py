@@ -4,11 +4,13 @@ from strategies.indicators import RSIIndicator, MACDIndicator, ParabolicSARIndic
     ATRIndicator, CVDIndicator
 from strategies.indicators.cci import CCIIndicator
 
+from strategies.evaluators.MACDEvaluator import MACDEvaluator
+
 class UniversalStrategy:
     def __init__(self):
         self.name = "Universal Strategy",
         self.universal_buy_treshold = 3.1
-        self.universal_sell_treshold = -3
+        self.universal_sell_treshold = -3.1
         self.ema = EMAIndicator()
         self.rsi = RSIIndicator()
         self.macd = MACDIndicator()
@@ -17,6 +19,7 @@ class UniversalStrategy:
         self.atr = ATRIndicator()
         self.cci = CCIIndicator()
         self.cvd = CVDIndicator()
+        self.MACDEvaluator = MACDEvaluator()
         self.candles_amount = max(self.ema.candles_amount,
                                   self.rsi.candles_amount,
                                   self.macd.candles_amount,
@@ -152,64 +155,6 @@ class UniversalStrategy:
         logging.info(f"EMA short: {curr_ema_short}, EMA long: {curr_ema_long}, Score after EMA: {score}")
         return score
 
-    # MACD v2
-    def evaluate_macd(self, df, score, trend, atr):
-
-        macd = df["macd"].iloc[-1]
-        macd_prev = df["macd"].iloc[-2]
-        specsignal = df["specsignal"].iloc[-1]
-        specsignal_prev = df["specsignal"].iloc[-2]
-        macd_hist = df["hist"].iloc[-1]
-        macd_hist_prev = df["hist"].iloc[-2]
-        normalized_macd_hist = macd_hist / atr
-        normalized_macd_hist_prev = macd_hist_prev / atr
-
-        # Tresholds
-        macd_narrow_threshold = 0.065  # Минимальная разница для сужения
-        macd_extension_threshold = 0.065  # Минимальная разница для расширения
-        strong_movement_threshold = 100  # Порог для сильного изменения (%)
-
-        # Multiplicators
-        # macd_extension_multiplier = 1.2
-        # macd_cross_multiplier = 1.4
-        # macd_narrow_multiplier = 1.5
-
-        # Multiplicators
-        macd_extension_multiplier = 1.4
-        macd_cross_multiplier = 1.8
-        macd_narrow_multiplier = 1.7
-        strong_movement_multiplier = 1.8  # Дополнительный множитель для сильных изменений
-
-        # Относительное изменение hist
-        hist_change = abs(normalized_macd_hist - normalized_macd_hist_prev) / abs(normalized_macd_hist_prev) * 100
-
-        # Логика пересечения
-        if normalized_macd_hist * normalized_macd_hist_prev <= 0:
-            logging.info("Пересечение MACD и Specsignal")
-            score *= macd_cross_multiplier
-        # Логика сужения
-        elif abs(normalized_macd_hist) < macd_narrow_threshold < abs(normalized_macd_hist_prev) and abs(
-                normalized_macd_hist) < abs(normalized_macd_hist_prev):
-            logging.info("MACD и Specsignal сужаются в пределах диапозона")
-            score *= macd_narrow_multiplier
-        # Логика расширения
-        elif abs(normalized_macd_hist) > macd_extension_threshold > abs(normalized_macd_hist_prev) and abs(
-                normalized_macd_hist) > abs(normalized_macd_hist_prev):
-            logging.info("MACD и Specsignal расширяются в пределах диапозона")
-            score *= macd_extension_multiplier
-
-        # Логика сильного изменения
-        if hist_change >= strong_movement_threshold:
-            logging.info("Сильное изменение гистограммы MACD")
-            score *= strong_movement_multiplier
-
-        logging.info(f"Score after MACD: {score}, "
-              f"MACD: {macd}, Specsignal: {specsignal}, "
-              f"MACD hist: {normalized_macd_hist}, MACD prev hist: {normalized_macd_hist_prev}, "
-              f"Hist change: {hist_change}%"
-              f"Trend: {trend}")
-        return score
-
     # ADX - сомнительно надо ли вообще вот это
     def evaluate_adx(self, df, score):
         adx = df["adx"].iloc[-1]
@@ -306,7 +251,7 @@ class UniversalStrategy:
         score = self.evaluate_sar(df, close, trend, score)
         score = self.evaluate_adx(df, score)
         score = self.evaluate_rsi(df, score)
-        score = self.evaluate_macd(df, score, trend, atr)
+        score = self.MACDEvaluator.evaluate_macd(df, score, trend, atr)
         # self.evaluate_cvd(df, close, close_prev) / не работает, пересмотреть логику
         score = self.evaluate_cci(df, score, trend)
 
