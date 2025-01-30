@@ -92,8 +92,8 @@ class MACDEvaluator:
         # Считаем количество пересечений MACD и сигнальной линии
         crosses = 0
         for i in range(1, len(macd_line)):
-            if (macd_line[i - 1] < signal_line[i - 1] and macd_line[i] > signal_line[i]) or \
-                    (macd_line[i - 1] > signal_line[i - 1] and macd_line[i] < signal_line[i]):
+            if ((macd_line[i - 1] < signal_line[i - 1] and macd_line[i] > signal_line[i]) or
+                    (macd_line[i - 1] > signal_line[i - 1] and macd_line[i] < signal_line[i])):
                 crosses += 1
 
         # Сравниваем количество пересечений с порогом
