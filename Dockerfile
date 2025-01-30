@@ -15,7 +15,7 @@ RUN dpkg -i /tmp/ta-lib_0.6.4_amd64.deb && \
 WORKDIR /app
 
 # Копируем файлы проекта
-COPY . .
+COPY deapp .
 
 # Устанавливаем Python-зависимости
 RUN pip install --no-cache-dir -r requirements.txt
