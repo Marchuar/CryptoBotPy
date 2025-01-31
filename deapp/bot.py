@@ -1,5 +1,6 @@
 import os
 
+from constants import BYBIT_PERPETUAL_URL
 from sql.commands import tg_is_user_subscribed, tg_subscribe_user, tg_unsubscribe_user, tg_update_user_timeframe
 from aiogram import Router, Bot
 from aiogram.filters import CommandStart, Command
@@ -19,17 +20,21 @@ timeframe_settings = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text=available_timeframes[4], callback_data='1d')]
 ])
 
+
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     await start(message)
+
 
 @router.message(Command('stop'))
 async def cmd_stop(message: Message):
     await stop(message)
 
+
 @router.message(Command('timeframe'))
 async def change_timeframe(message: Message):
     await message.answer("Choose timeframe:", reply_markup=timeframe_settings)
+
 
 @router.callback_query(lambda c: c.data in available_timeframes)
 async def process_timeframe_callback(callback_query: CallbackQuery):
@@ -39,19 +44,22 @@ async def process_timeframe_callback(callback_query: CallbackQuery):
     tg_update_user_timeframe(user_id, selected_timeframe)
     await callback_query.message.answer("Saved")
 
-async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, signal):
+
+async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, signal, score):
     cleaned_symbol = symbol.replace("/", "").replace(":USDT", "")
 
     signal_message = (
         "✨ <b>Новый сигнал</b> ✨\n\n"
         f"🌐 Биржа: <b>{exchange}</b>\n"
-        f"💱 Пара: <b>{cleaned_symbol}</b>\n"
+        f"💱 Пара: <a href='{BYBIT_PERPETUAL_URL}{cleaned_symbol}'>{cleaned_symbol}</a>\n"
         f"📈 Стратегия: <b>{', '.join(strategy)}</b>\n"
         f"⏰ Таймфрейм: <b>{timeframe}</b>\n"
+        f"🧮 Оценка сигнала: <b>{score}</b>\n"
         f"📢 Сигнал: <b>{signal}</b>\n"
     )
 
-    await bot.send_message(chat_id=user_id, text=signal_message, parse_mode="HTML")
+    await bot.send_message(chat_id=user_id, text=signal_message, parse_mode="HTML", disable_web_page_preview=True)
+
 
 async def analyze_notify(user_id, race):
     if race == 'start':
@@ -65,7 +73,6 @@ async def analyze_notify(user_id, race):
     await bot.send_message(chat_id=user_id, text=notify_message, parse_mode="HTML")
 
 
-
 async def start(message: Message):
     user_id = message.from_user.id
     if tg_is_user_subscribed(user_id):
@@ -73,6 +80,7 @@ async def start(message: Message):
     else:
         tg_subscribe_user(user_id)
         await message.answer("Вы подписались на рассылку")
+
 
 async def stop(message: Message):
     user_id = message.from_user.id
