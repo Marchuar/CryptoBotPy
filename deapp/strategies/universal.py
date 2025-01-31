@@ -88,9 +88,9 @@ class UniversalStrategy:
         score = self.calculate_signal_score(df, trend, atr, close, close_prev)
 
         if score >= self.universal_buy_treshold:
-            return "buy"
+            return "buy", score
         elif score <= self.universal_sell_treshold:
-            return "sell"
+            return "sell", score
         return "no_signal"
 
     # EMA
@@ -236,7 +236,7 @@ class UniversalStrategy:
         elif (0 < curr_cci < 80.0) or (0 > curr_cci > -80.0):
             score *= 0.9
         else:
-            score *= 1.0 # Оставляем как было
+            score *= 1.0  # Оставляем как было
 
         logging.info(f"Score after CCI: {score}, CCI: {curr_cci}")
         return score
