@@ -54,7 +54,7 @@ async def send_signal_message(user_id, exchange, symbol, strategy, timeframe, si
         f"💱 Пара: <a href='{BYBIT_PERPETUAL_URL}{cleaned_symbol}'>{cleaned_symbol}</a>\n"
         f"📈 Стратегия: <b>{', '.join(strategy)}</b>\n"
         f"⏰ Таймфрейм: <b>{timeframe}</b>\n"
-        f"🧮 Оценка сигнала: <b>{score}</b>\n"
+        f"🧮 Оценка сигнала: <b>{abs(score)}</b>\n"
         f"📢 Сигнал: <b>{signal}</b>\n"
     )
 
