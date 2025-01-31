@@ -19,8 +19,8 @@ class MACDEvaluator:
         normalized_macd_hist_prev = macd_hist_prev / atr
 
         # Рассчитываем динамический treshold
-        macd_line = df["macd"].iloc[-10:]  # Используем последние 10 значений для анализа
-        signal_line = df["specsignal"].iloc[-10:]
+        macd_line = df["macd"].iloc[-15:]  # Используем последние 15 значений для анализа
+        signal_line = df["specsignal"].iloc[-15:]
         dynamic_threshold = self.calculate_threshold(macd_line)
 
         # Очищаем индексы
@@ -76,18 +76,23 @@ class MACDEvaluator:
         return score
 
     @staticmethod
-    def calculate_threshold(macd_line, multiplier=0.5):
+    def calculate_threshold(macd_line): # multiplier=0.5
         # Рассчитывает порог на основе стандартного отклонения MACD.
 
         std_dev = np.std(macd_line)  # Стандартное отклонение MACD
-        return std_dev * multiplier
+        return std_dev
+        # return std_dev * multiplier
 
     @staticmethod
     def is_sideways_market(macd_line, signal_line, threshold, min_crosses=3):
-        # Проверяет наличие бокового рынка на основе MACD.
 
+        # Проверяет наличие бокового рынка на основе MACD.
         # Проверяем, остаются ли значения MACD и сигнальной линии в пределах порога
-        is_macd_flat = all(abs(macd - signal) < threshold for macd, signal in zip(macd_line, signal_line))
+        is_macd_flat = True  # Изначально предполагаем, что MACD плоский
+        for macd, signal in zip(macd_line, signal_line):  # Перебираем значения MACD и сигнальной линии попарно
+            if abs(macd - signal) >= threshold:  # Проверяем, превышает ли разница заданный порог
+                is_macd_flat = False  # Если превышает, значит MACD не плоский
+                break  # Выходим из цикла, так как дальнейшая проверка не имеет смысла
 
         # Считаем количество пересечений MACD и сигнальной линии
         crosses = 0
@@ -99,4 +104,15 @@ class MACDEvaluator:
         # Сравниваем количество пересечений с порогом
         is_frequent_crosses = crosses >= min_crosses
 
-        return is_macd_flat and is_frequent_crosses
+        if not is_frequent_crosses:
+            # Считаем количество пересечений MACD и сигнальной линии
+            crosses = 0
+            for i in range(1, len(macd_line) // 2): # вдвое меньше свечей
+                if ((macd_line[i - 1] < signal_line[i - 1] and macd_line[i] > signal_line[i]) or
+                        (macd_line[i - 1] > signal_line[i - 1] and macd_line[i] < signal_line[i])):
+                    crosses += 1
+
+            # Сравниваем количество пересечений с порогом
+            is_frequent_crosses = crosses >= (min_crosses - 1) # нужно 2 пересечения
+
+        return is_macd_flat or is_frequent_crosses
