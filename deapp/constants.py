@@ -48,3 +48,6 @@ DEFAULT_SAR_MAXIMUM = 0.2
 
 # CCI
 DEFAULT_CCI_PERIOD = 20
+
+#Exchanges
+BYBIT_PERPETUAL_URL = "https://www.bybit.com/trade/usdt/"
