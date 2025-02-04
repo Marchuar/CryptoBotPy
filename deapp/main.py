@@ -18,7 +18,7 @@ init_connection("bybit")
 exchange = get_connection("bybit")
 setup_logging()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-bot = Bot(token=BOT_TOKEN)
+bot = Bot(token=BOT_TOKEN, timeout=60)
 dp = Dispatcher()
 
 
