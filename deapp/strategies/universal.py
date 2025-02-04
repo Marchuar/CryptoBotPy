@@ -33,7 +33,7 @@ class UniversalStrategy:
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
                                   self.adx.candles_amount,
-                                  self.cci.candles_amount)
+                                  self.cci.candles_amount) + 10
 
     def determine_trend(self, macd_hist, macd_hist_prev, rsi, adx, cci, recent_prices):
 
