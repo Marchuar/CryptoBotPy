@@ -18,17 +18,19 @@ class MACDEvaluator:
         normalized_macd_hist = macd_hist / atr
         normalized_macd_hist_prev = macd_hist_prev / atr
 
-        # Рассчитываем динамический treshold
+        # Рассчитываем динамический threshold
         macd_line = df["macd"].iloc[-15:]  # Используем последние 15 значений для анализа
         signal_line = df["specsignal"].iloc[-15:]
-        dynamic_threshold = self.calculate_threshold(macd_line)
-
+        macd_hist_10 = df["hist"].iloc[-10:] # Берём последние 10 значений MACD_hist
         # Очищаем индексы
         macd_line = macd_line.reset_index(drop=True)
         signal_line = signal_line.reset_index(drop=True)
+        macd_hist_10 = macd_hist_10.reset_index(drop=True)
+        # Считаем threshold
+        dynamic_threshold = self.calculate_threshold(macd_hist_10)
 
         # Проверяем боковой рынок
-        is_sideways_market = self.is_sideways_market(macd_line, signal_line, dynamic_threshold)
+        is_sideways_market = self.is_sideways_market(macd_hist_10, macd_line, signal_line, dynamic_threshold)
         if is_sideways_market:
             logging.info("Рынок в боковике. Снижаем приоритет MACD.")
             score *= 0.8  # Снижаем score для бокового рынка
@@ -50,11 +52,21 @@ class MACDEvaluator:
 
         # Логика пересечения
         if normalized_macd_hist * normalized_macd_hist_prev <= 0:
+            # Логика сильного изменения
+            if hist_change >= strong_movement_threshold:
+                logging.info("Сильное изменение гистограммы MACD")
+                score *= strong_movement_multiplier
+
             logging.info("Пересечение MACD и Specsignal")
             score *= macd_cross_multiplier
         # Логика сужения
         elif abs(normalized_macd_hist) < macd_narrow_threshold < abs(normalized_macd_hist_prev) and abs(
                 normalized_macd_hist) < abs(normalized_macd_hist_prev):
+            # Логика сильного изменения
+            if hist_change >= strong_movement_threshold:
+                logging.info("Сильное изменение гистограммы MACD")
+                score *= strong_movement_multiplier
+
             logging.info("MACD и Specsignal сужаются в пределах диапозона")
             score *= macd_narrow_multiplier
         # Логика расширения (возможно надо вообще убрать)
@@ -62,11 +74,6 @@ class MACDEvaluator:
                 normalized_macd_hist) > abs(normalized_macd_hist_prev):
             logging.info("MACD и Specsignal расширяются в пределах диапозона")
             score *= macd_extension_multiplier
-
-        # Логика сильного изменения
-        if hist_change >= strong_movement_threshold:
-            logging.info("Сильное изменение гистограммы MACD")
-            score *= strong_movement_multiplier
 
         logging.info(f"Score after MACD: {score}, "
                 f"MACD: {macd}, Specsignal: {specsignal}, "
@@ -76,23 +83,25 @@ class MACDEvaluator:
         return score
 
     @staticmethod
-    def calculate_threshold(macd_line): # multiplier=0.5
+    def calculate_threshold(macd_hist_10):
         # Рассчитывает порог на основе стандартного отклонения MACD.
 
-        std_dev = np.std(macd_line)  # Стандартное отклонение MACD
-        return std_dev
-        # return std_dev * multiplier
+        threshold = sum(map(abs, macd_hist_10)) / len(macd_hist_10) * 0.15
+        logging.info(f"Threshold: {threshold}")
+        return threshold
 
     @staticmethod
-    def is_sideways_market(macd_line, signal_line, threshold, min_crosses=3):
+    def is_sideways_market(macd_hist_10, macd_line, signal_line, threshold, min_crosses=3):
 
         # Проверяет наличие бокового рынка на основе MACD.
-        # Проверяем, остаются ли значения MACD и сигнальной линии в пределах порога
-        is_macd_flat = True  # Изначально предполагаем, что MACD плоский
-        for macd, signal in zip(macd_line, signal_line):  # Перебираем значения MACD и сигнальной линии попарно
-            if abs(macd - signal) >= threshold:  # Проверяем, превышает ли разница заданный порог
-                is_macd_flat = False  # Если превышает, значит MACD не плоский
-                break  # Выходим из цикла, так как дальнейшая проверка не имеет смысла
+        is_macd_flat = True
+        score = 0 # score для выхода разницы macd_hist за пределы threshold
+        for i in range(0, len(macd_hist_10) - 1):
+            if abs(macd_hist_10[i] - macd_hist_10[i + 1]) >= threshold:
+                score = score + 1
+        # Надо набрать 4 скора чтобы рынок посчитало не плоским
+        if score >= 4:
+            is_macd_flat = False # MACD не плоский
 
         # Считаем количество пересечений MACD и сигнальной линии
         crosses = 0
@@ -103,16 +112,5 @@ class MACDEvaluator:
 
         # Сравниваем количество пересечений с порогом
         is_frequent_crosses = crosses >= min_crosses
-
-        if not is_frequent_crosses:
-            # Считаем количество пересечений MACD и сигнальной линии
-            crosses = 0
-            for i in range(1, len(macd_line) // 2): # вдвое меньше свечей
-                if ((macd_line[i - 1] < signal_line[i - 1] and macd_line[i] > signal_line[i]) or
-                        (macd_line[i - 1] > signal_line[i - 1] and macd_line[i] < signal_line[i])):
-                    crosses += 1
-
-            # Сравниваем количество пересечений с порогом
-            is_frequent_crosses = crosses >= (min_crosses - 1) # нужно 2 пересечения
 
         return is_macd_flat or is_frequent_crosses

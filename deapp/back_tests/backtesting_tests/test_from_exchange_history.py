@@ -9,7 +9,7 @@ from strategies.universal import UniversalStrategy
 def test_from_exchange(
         exchange=get_connection("bybit"),
         strategy=UniversalStrategy(),
-        symbol="AVAXUSDT",
+        symbol="TRUMP/USDT:USDT",
         timeframe="1h",
         since="2024-11-15T00:00:00Z"
 ):
