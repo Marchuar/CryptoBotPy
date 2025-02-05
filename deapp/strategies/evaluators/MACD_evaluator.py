@@ -21,16 +21,16 @@ class MACDEvaluator:
         # Рассчитываем динамический threshold
         macd_line = df["macd"].iloc[-15:]  # Используем последние 15 значений для анализа
         signal_line = df["specsignal"].iloc[-15:]
-        macd_hist_10 = df["hist"].iloc[-10:] # Берём последние 10 значений MACD_hist
+        macd_hist_15 = df["hist"].iloc[-15:] # Берём последние 15 значений MACD_hist
         # Очищаем индексы
         macd_line = macd_line.reset_index(drop=True)
         signal_line = signal_line.reset_index(drop=True)
-        macd_hist_10 = macd_hist_10.reset_index(drop=True)
+        macd_hist_15 = macd_hist_15.reset_index(drop=True)
         # Считаем threshold
-        dynamic_threshold = self.calculate_threshold(macd_hist_10)
+        dynamic_threshold = self.calculate_threshold(macd_hist_15)
 
         # Проверяем боковой рынок
-        is_sideways_market = self.is_sideways_market(macd_hist_10, macd_line, signal_line, dynamic_threshold)
+        is_sideways_market = self.is_sideways_market(macd_hist_15, dynamic_threshold)
         if is_sideways_market:
             logging.info("Рынок в боковике. Снижаем приоритет MACD.")
             score *= 0.8  # Снижаем score для бокового рынка
@@ -83,21 +83,21 @@ class MACDEvaluator:
         return score
 
     @staticmethod
-    def calculate_threshold(macd_hist_10):
+    def calculate_threshold(macd_hist_15):
         # Рассчитывает порог на основе стандартного отклонения MACD.
 
-        threshold = sum(map(abs, macd_hist_10)) / len(macd_hist_10) * 0.3
+        threshold = sum(map(abs, macd_hist_15)) / len(macd_hist_15) * 0.3
         logging.info(f"Threshold: {threshold}")
         return threshold
 
     @staticmethod
-    def is_sideways_market(macd_hist_10, macd_line, signal_line, threshold, min_crosses=3):
+    def is_sideways_market(macd_hist_15, threshold, min_crosses=3):
 
         # Проверяет наличие бокового рынка на основе MACD.
         is_macd_flat = True
         score = 0 # score для выхода разницы macd_hist за пределы threshold
-        for i in range(0, len(macd_hist_10) - 1):
-            if abs(macd_hist_10[i] - macd_hist_10[i + 1]) >= threshold:
+        for i in range(0, len(macd_hist_15) - 6):
+            if abs(macd_hist_15[i] - macd_hist_15[i + 1]) >= threshold:
                 score = score + 1
         # Надо набрать 4 скора чтобы рынок посчитало не плоским
         if score >= 4:
@@ -105,12 +105,14 @@ class MACDEvaluator:
 
         # Считаем количество пересечений MACD и сигнальной линии
         crosses = 0
-        for i in range(1, len(macd_line)):
-            if ((macd_line[i - 1] < signal_line[i - 1] and macd_line[i] > signal_line[i]) or
-                    (macd_line[i - 1] > signal_line[i - 1] and macd_line[i] < signal_line[i])):
+        for i in range(1, len(macd_hist_15) - 1):
+            if macd_hist_15[i] * macd_hist_15[i + 1] <= 0:
                 crosses += 1
 
         # Сравниваем количество пересечений с порогом
         is_frequent_crosses = crosses >= min_crosses
+
+        if is_frequent_crosses:
+            logging.info("Пересечения >= 3")
 
         return is_macd_flat or is_frequent_crosses
