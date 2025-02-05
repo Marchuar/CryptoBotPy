@@ -86,7 +86,7 @@ class MACDEvaluator:
     def calculate_threshold(macd_hist_15):
         # Рассчитывает порог на основе стандартного отклонения MACD.
 
-        threshold = sum(map(abs, macd_hist_15)) / len(macd_hist_15) * 0.3
+        threshold = sum(map(abs, macd_hist_15)) / len(macd_hist_15) * 0.2
         logging.info(f"Threshold: {threshold}")
         return threshold
 
