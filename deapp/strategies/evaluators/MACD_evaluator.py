@@ -86,7 +86,7 @@ class MACDEvaluator:
     def calculate_threshold(macd_hist_15):
         # Рассчитывает порог на основе стандартного отклонения MACD.
 
-        threshold = sum(map(abs, macd_hist_15)) / len(macd_hist_15) * 0.2
+        threshold = sum(map(abs, macd_hist_15)) / len(macd_hist_15) * 0.25
         logging.info(f"Threshold: {threshold}")
         return threshold
 
@@ -105,7 +105,7 @@ class MACDEvaluator:
 
         # Считаем количество пересечений MACD и сигнальной линии
         crosses = 0
-        for i in range(1, len(macd_hist_15) - 1):
+        for i in range(0, len(macd_hist_15) - 1):
             if macd_hist_15[i] * macd_hist_15[i + 1] <= 0:
                 crosses += 1
 

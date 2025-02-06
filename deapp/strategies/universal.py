@@ -33,7 +33,7 @@ class UniversalStrategy:
                                   self.macd.candles_amount,
                                   self.sar.candles_amount,
                                   self.adx.candles_amount,
-                                  self.cci.candles_amount) + 10
+                                  self.cci.candles_amount) + 15
 
     def determine_trend(self, macd_hist, macd_hist_prev, rsi, adx, cci, recent_prices):
 
@@ -51,8 +51,13 @@ class UniversalStrategy:
         #         f">>>> Диапазон цен {price_range} ({percent_range:.2f}%) меньше {range_threshold}%. Боковое движение.")
         #     return "no_signal"
 
-        if 0 <= cci <= 15 or 0 >= cci >= -15:
-            logging.info(f">>>> CCI: {cci} - not trading")
+        # работает но не понятно надо ли вообще
+        # if 0 <= cci <= 15 or 0 >= cci >= -15:
+        #     logging.info(f">>>> CCI: {cci} - not trading")
+        #     return "no_signal"
+
+        if adx <= 15:
+            logging.info(f">>>>ADX: {adx} - not trading")
             return "no_signal"
 
         if 43 <= rsi <= 57 and adx <= 27:
